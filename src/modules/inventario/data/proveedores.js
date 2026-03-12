@@ -1,5 +1,3 @@
-import { productos } from "./productos";
-
 export const proveedores = [
     {
         nombre: "Julian Dominguez",

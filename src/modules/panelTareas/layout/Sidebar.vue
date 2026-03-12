@@ -41,6 +41,7 @@ return{
 menuItems:[
 { id:"panel", label:"Panel", icono:"🏠" },
 { id:"tareas", label:"Tareas", icono:"✅" },
+{ id:"kpi", label:"KPI", icono:"📈" },
 { id:"stock", label:"Inventario", icono:"📦" },
 { id:"proveedores", label:"Proveedores", icono:"🤝" }
 ]

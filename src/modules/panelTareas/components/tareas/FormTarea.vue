@@ -17,7 +17,7 @@
       <option value="alta">🔴 Alta</option>
     </select>
 
-    <button type="submit" class="btnAgregar" :disabled="!diaActivo">
+    <button type="button" class="btnAgregar" :disabled="!diaActivo" @click="enviar">
       ➕ Agregar
     </button>
 

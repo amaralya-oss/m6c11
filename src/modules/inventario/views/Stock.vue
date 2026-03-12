@@ -55,7 +55,7 @@
       <option v-for="cat in categoria" :key="cat" :value="cat">{{ cat }}</option>
     </select>
 
-    <button type="submit" class="btnAgregarProd" :disabled="!tiendaAbierta">
+    <button type="button" class="btnAgregarProd" :disabled="!tiendaAbierta" @click="agregarProducto">
       ➕ Agregar
     </button>
 

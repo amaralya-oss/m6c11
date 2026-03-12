@@ -1,25 +1,31 @@
 <template>
+<div class="appRoot">
 
-<div class="appLayout">
+  <LandingPage v-if="mostrarLanding" @entrar="entrarAlSistema" />
 
-  <!-- Sidebar -->
-  <Sidebar :vistaActiva="vistaActual" @cambiarVista="vistaActual = $event" />
+  <div v-else class="appLayout">
 
-  <!-- Panel principal -->
-  <div class="mainPanel">
+    <!-- Sidebar -->
+    <Sidebar :vistaActiva="vistaActual" @cambiarVista="vistaActual = $event" />
 
-    <!-- Header -->
-    <HeaderPanel :heladero="heladero" />
+    <!-- Panel principal -->
+    <div class="mainPanel">
 
-    <!-- Contenido dinámico según vista -->
-    <main class="contenido">
+      <!-- Header -->
+      <HeaderPanel :heladero="heladero" />
 
-      <PanelEmpleado v-if="vistaActual === 'panel'" :usuario="heladero" />
-      <PanelEmpleado v-else-if="vistaActual === 'tareas'" :usuario="heladero" />
-      <Stock        v-else-if="vistaActual === 'stock'" />
-      <Proveedores  v-else-if="vistaActual === 'proveedores'" />
+      <!-- Contenido dinámico según vista -->
+      <main class="contenido">
 
-    </main>
+        <PanelEmpleado v-if="vistaActual === 'panel'" :usuario="heladero" vista="panel" />
+        <PanelEmpleado v-else-if="vistaActual === 'tareas'" :usuario="heladero" vista="tareas" />
+        <PanelEmpleado v-else-if="vistaActual === 'kpi'" :usuario="heladero" vista="kpi" />
+        <Stock        v-else-if="vistaActual === 'stock'" />
+        <Proveedores  v-else-if="vistaActual === 'proveedores'" />
+
+      </main>
+
+    </div>
 
   </div>
 
@@ -32,6 +38,7 @@
 import Sidebar       from "./modules/panelTareas/layout/Sidebar.vue"
 import HeaderPanel   from "./modules/panelTareas/layout/HeaderPanel.vue"
 import PanelEmpleado from "./modules/panelTareas/views/PanelEmpleado.vue"
+import LandingPage   from "./modules/panelTareas/views/LandingPage.vue"
 import Stock         from "./modules/inventario/views/Stock.vue"
 import Proveedores   from "./modules/inventario/views/Proveedores.vue"
 
@@ -41,6 +48,7 @@ components:{
 Sidebar,
 HeaderPanel,
 PanelEmpleado,
+LandingPage,
 Stock,
 Proveedores
 },
@@ -49,7 +57,15 @@ Proveedores
 data(){
 return{
 heladero: "Valentina Torres",
-vistaActual: "panel"
+vistaActual: "panel",
+mostrarLanding: true
+}
+},
+
+methods:{
+entrarAlSistema(vista = "panel"){
+this.vistaActual = vista
+this.mostrarLanding = false
 }
 }
 
@@ -70,6 +86,10 @@ body{
 font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 background:#f4fdf8;
 color:#1a3d2e;
+}
+
+.appRoot{
+min-height:100vh;
 }
 
 /* ── LAYOUT PRINCIPAL ── */

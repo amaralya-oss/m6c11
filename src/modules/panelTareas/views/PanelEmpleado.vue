@@ -25,20 +25,25 @@
 
   </div>
 
-  <Resumen :totalTareas="tareas.length" :diaActivo="diaActivo" />
+  <Resumen v-if="mostrarResumen" :totalTareas="tareas.length" :diaActivo="diaActivo" />
 
-  <div class="seccion">
+  <div v-if="mostrarAgenda" class="seccion">
     <AgendaDia :tareas="tareas" />
   </div>
 
   <!-- AE1 REQ 4: FormTarea usa @submit.prevent + v-model internamente -->
-  <div class="seccion">
+  <div v-if="mostrarTareas" class="seccion">
     <h2 class="tituloSeccion">✅ Tareas del turno</h2>
     <FormTarea :diaActivo="diaActivo" @agregarTarea="agregarTarea" />
   </div>
 
+  <div v-if="mostrarKpi" class="seccion">
+    <KpiPanel :tareas="tareas" :diaActivo="diaActivo" />
+  </div>
+
   <!-- AE1 REQ 5 + 6: ListaTareas usa v-for y v-show -->
   <ListaTareas
+    v-if="mostrarTareas"
     :tareas="tareas"
     @toggleCompletar="toggleCompletar"
     @editar="abrirModal"
@@ -61,17 +66,22 @@
 
 import Resumen     from "../components/dashboard/Resumen.vue"
 import AgendaDia   from "../components/dashboard/AgendaDia.vue"
+import KpiPanel    from "../components/dashboard/KpiPanel.vue"
 import FormTarea   from "../components/tareas/FormTarea.vue"
 import ListaTareas from "../components/tareas/ListaTareas.vue"
 import ModalTarea  from "../components/tareas/ModalTarea.vue"
 
 export default{
 
-props:["usuario"],
+props:{
+usuario:{ type: String, default: "" },
+vista:{ type: String, default: "panel" }
+},
 
 components:{
 Resumen,
 AgendaDia,
+KpiPanel,
 FormTarea,
 ListaTareas,
 ModalTarea
@@ -84,6 +94,24 @@ tareas: [],
 mostrarModal: false,
 tareaAEditar: null,
 nextId: 1
+}
+},
+
+computed:{
+mostrarResumen(){
+return this.vista === "panel" || this.vista === "kpi"
+},
+
+mostrarAgenda(){
+return this.vista === "panel"
+},
+
+mostrarTareas(){
+return this.vista === "panel" || this.vista === "tareas"
+},
+
+mostrarKpi(){
+return this.vista === "panel" || this.vista === "kpi"
 }
 },
 

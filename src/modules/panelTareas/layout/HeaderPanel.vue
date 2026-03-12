@@ -34,7 +34,7 @@ import LogoBosque from "./LogoBosque.vue"
 
 export default{
 
-props:["heladero","hora"],
+props:["heladero"],
 
 components:{
 LogoBosque
