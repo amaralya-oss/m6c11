@@ -1,269 +1,218 @@
 <template>
 
-<div class="layout">
+<div class="panelEmpleado">
 
-<Sidebar />
+  <!-- AE1 REQ 1: Interpolación -->
+  <h1 class="tituloPanelInterpolado">
+    Panel de Tareas de <span class="nombreDestacado">{{ usuario }}</span>
+  </h1>
 
-<!-- PANEL PRINCIPAL -->
-<main class="panel">
+  <!-- AE1 REQ 2 + 3: Estado del día -->
+  <div class="bloqueEstadoDia">
 
-<HeaderPanel
-:heladero="usuario"
-:hora="hora"
-/>
+    <div class="estadoBadge" :class="diaActivo ? 'badge--activo' : 'badge--inactivo'">
+      <span v-if="diaActivo">☀️ Día activo, ¡a trabajar!</span>
+      <span v-else>🌙 Día finalizado. Buen trabajo.</span>
+    </div>
 
-<h1>Panel de Tareas de {{ usuario }}</h1>
+    <button
+      class="btnEstadoDia"
+      :class="diaActivo ? 'btn--cerrar' : 'btn--abrir'"
+      @click="toggleDia"
+    >
+      {{ diaActivo ? "Finalizar día" : "Iniciar día" }}
+    </button>
 
-<div class="estadoDia">
+  </div>
 
-<button
-class="botonEstado"
-@click="cambiarEstado"
-:class="diaActivo ? 'btnRojo' : 'btnVerde'"
->
-{{ diaActivo ? "Finalizar día" : "Iniciar día" }}
-</button>
+  <Resumen :totalTareas="tareas.length" :diaActivo="diaActivo" />
 
-<p v-if="diaActivo" class="mensajeActivo">
-☀️ Día activo, ¡a trabajar!
-</p>
+  <div class="seccion">
+    <AgendaDia :tareas="tareas" />
+  </div>
 
-<p v-else class="mensajeFinalizado">
-🌙 Día finalizado. Buen trabajo.
-</p>
+  <!-- AE1 REQ 4: FormTarea usa @submit.prevent + v-model internamente -->
+  <div class="seccion">
+    <h2 class="tituloSeccion">✅ Tareas del turno</h2>
+    <FormTarea :diaActivo="diaActivo" @agregarTarea="agregarTarea" />
+  </div>
 
-</div>
+  <!-- AE1 REQ 5 + 6: ListaTareas usa v-for y v-show -->
+  <ListaTareas
+    :tareas="tareas"
+    @toggleCompletar="toggleCompletar"
+    @editar="abrirModal"
+    @eliminar="eliminarTarea"
+  />
 
-<Resumen
-:total="tareas.length"
-:completadas="tareasCompletadas"
-:pendientes="tareasPendientes"
-:porcentaje="porcentajeProgreso"
-/>
-
-
-<FormTarea @agregar="agregarTarea"/>
-<h2 class="tituloTareas">Tareas asignadas</h2>
-
-<ListaTareas
-:tareas="tareas"
-@eliminar="eliminarTarea"
-@abrir="abrirTarea"
-/>
-
-</main>
-
-<AgendaDia
-:hora="hora"
-:tareas="tareas"
-/>
+  <!-- AE1 REQ 7: ModalTarea usa @keyup.enter modificador -->
+  <ModalTarea
+    :visible="mostrarModal"
+    :tarea="tareaAEditar"
+    @cerrar="cerrarModal"
+    @guardar="guardarEdicion"
+  />
 
 </div>
-
-<ModalTarea
-:visible="mostrarModal"
-:tarea="tareaSeleccionada"
-:instrucciones="instrucciones"
-@cerrar="mostrarModal=false"
-/>
 
 </template>
 
 <script>
 
-import HeaderPanel from "../layout/HeaderPanel.vue"
-import Sidebar from "../layout/Sidebar.vue"
-
-import AgendaDia from "../components/dashboard/AgendaDia.vue"
-import Resumen from "../components/dashboard/Resumen.vue"
-
-import FormTarea from "../components/tareas/FormTarea.vue"
+import Resumen     from "../components/dashboard/Resumen.vue"
+import AgendaDia   from "../components/dashboard/AgendaDia.vue"
+import FormTarea   from "../components/tareas/FormTarea.vue"
 import ListaTareas from "../components/tareas/ListaTareas.vue"
-import ModalTarea from "../components/tareas/ModalTarea.vue"
+import ModalTarea  from "../components/tareas/ModalTarea.vue"
 
 export default{
 
+props:["usuario"],
+
 components:{
-HeaderPanel,
-LogoBosque,
+Resumen,
+AgendaDia,
 FormTarea,
 ListaTareas,
-Resumen,
-ModalTarea,
-AgendaDia,
-Sidebar
+ModalTarea
 },
 
 data(){
 return{
-
-usuario:"Camila",
-
-hora:new Date().toLocaleTimeString(),
-
-diaActivo:true,
-
-tareas:[],
-
-tareaSeleccionada:null,
-instrucciones:[],
-mostrarModal:false
-
+diaActivo: true,
+tareas: [],
+mostrarModal: false,
+tareaAEditar: null,
+nextId: 1
 }
-},
-
-mounted(){
-
-setInterval(()=>{
-this.hora = new Date().toLocaleTimeString()
-},1000)
-
-},
-
-computed:{
-
-tareasCompletadas(){
-return this.tareas.filter(t => t.completada).length
-},
-
-tareasPendientes(){
-return this.tareas.length - this.tareasCompletadas
-},
-
-porcentajeProgreso(){
-
-if(this.tareas.length === 0){
-return 0
-}
-
-return Math.round((this.tareasCompletadas / this.tareas.length) * 100)
-
-}
-
 },
 
 methods:{
 
-cambiarEstado(){
+toggleDia(){
 this.diaActivo = !this.diaActivo
 },
 
-agregarTarea(tarea){
-
-const colores = ["verde","naranja","morado"]
-
-const colorRandom = colores[Math.floor(Math.random()*colores.length)]
-
+agregarTarea({ nombre, prioridad }){
 this.tareas.push({
-nombre:tarea.nombre,
-inicio:tarea.inicio,
-fin:tarea.fin,
-completada:false,
-color:colorRandom
+  id: this.nextId++,
+  nombre,
+  prioridad,
+  completada: false
 })
-
 },
 
-eliminarTarea(index){
-this.tareas.splice(index,1)
+toggleCompletar(tarea){
+tarea.completada = !tarea.completada
 },
 
-async abrirTarea(tarea){
+eliminarTarea(tarea){
+this.tareas = this.tareas.filter(t => t !== tarea)
+},
 
-this.tareaSeleccionada = tarea
+abrirModal(tarea){
+this.tareaAEditar = tarea
 this.mostrarModal = true
+},
 
-try{
+cerrarModal(){
+this.tareaAEditar = null
+this.mostrarModal = false
+},
 
-const res = await fetch("http://localhost:3000/instrucciones/" + tarea.nombre)
-
-const data = await res.json()
-
-this.instrucciones = data
-
-}catch(error){
-
-console.error("Error cargando instrucciones", error)
-
+guardarEdicion(tareaEditada){
+const idx = this.tareas.findIndex(t => t.id === tareaEditada.id)
+if(idx !== -1) this.tareas[idx] = { ...tareaEditada }
+this.cerrarModal()
 }
 
 }
-
-}
-
 
 }
 
 </script>
 
-
 <style scoped>
 
-
-.layout{
-display:grid;
-grid-template-columns:250px 1fr 280px;
-height:100vh;
-font-family:Arial;
+.panelEmpleado{
+padding:28px 32px;
+display:flex;
+flex-direction:column;
+gap:20px;
 }
 
-
-/* PANEL */
-
-.panel{
-padding:30px;
-background:#f5f5f5;
+.tituloPanelInterpolado{
+font-size:22px;
+font-weight:700;
+color:#1a3d2e;
+margin:0;
 }
 
-/* AGENDA */
-
-.agenda{
-background:#e6f2f2;
-padding:20px;
+.nombreDestacado{
+color:#e05a00;
 }
 
-/* BOTONES */
+.bloqueEstadoDia{
+display:flex;
+align-items:center;
+gap:16px;
+flex-wrap:wrap;
+}
 
-.botonEstado{
-border:none;
+.estadoBadge{
 padding:10px 20px;
-border-radius:25px;
-color:white;
-cursor:pointer;
-}
-
-.btnRojo{
-background:#f05252;
-}
-
-.btnVerde{
-background:#1f8a70;
-}
-
-/* MENSAJES */
-
-.mensajeActivo{
-background:#e6f6ec;
-color:#1b7f4f;
-padding:10px 18px;
-border-radius:30px;
-}
-
-.mensajeFinalizado{
-background:#f0e6ff;
-color:#6a3dc9;
-padding:10px 18px;
-border-radius:30px;
-}
-
-
-.tituloTareas{
-margin-top:25px;
-margin-bottom:10px;
-font-size:20px;
+border-radius:50px;
 font-weight:600;
-color:#333;
+font-size:14px;
 }
 
+.badge--activo{
+background:#d4f5e5;
+color:#1a6b52;
+border:2px solid #2d9e74;
+}
+
+.badge--inactivo{
+background:#f0e8ff;
+color:#6b3fa0;
+border:2px solid #9b66d0;
+}
+
+.btnEstadoDia{
+padding:10px 22px;
+border:none;
+border-radius:50px;
+font-weight:700;
+font-size:14px;
+cursor:pointer;
+transition:0.2s;
+}
+
+.btn--cerrar{
+background:#ff6b6b;
+color:white;
+}
+
+.btn--cerrar:hover{ background:#e85555; }
+
+.btn--abrir{
+background:#2d9e74;
+color:white;
+}
+
+.btn--abrir:hover{ background:#1a6b52; }
+
+.seccion{
+display:flex;
+flex-direction:column;
+gap:12px;
+}
+
+.tituloSeccion{
+font-size:16px;
+font-weight:700;
+color:#1a3d2e;
+margin:0;
+}
 
 </style>

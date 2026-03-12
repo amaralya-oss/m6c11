@@ -8,7 +8,7 @@
 <LogoBosque/>
 
 <div class="textoHeladeria">
-<h2>Bosque Helado</h2>
+<h2>🍃 Bosque Helado</h2>
 <p>Panel de empleados</p>
 </div>
 
@@ -50,12 +50,10 @@ LogoBosque
 display:flex;
 justify-content:space-between;
 align-items:center;
-padding-bottom:20px;
-margin-bottom:25px;
-border-bottom:1px solid #e6e6e6;
+padding:18px 28px;
+background:linear-gradient(90deg,#1a6b52,#2d9e74);
+border-bottom:3px solid #FFD166;
 }
-
-/* IZQUIERDA */
 
 .infoHeladeria{
 display:flex;
@@ -67,16 +65,14 @@ gap:12px;
 margin:0;
 font-size:20px;
 font-weight:700;
-color:#333;
+color:#fff;
 }
 
 .textoHeladeria p{
 margin:0;
 font-size:13px;
-color:#888;
+color:#b6e8d3;
 }
-
-/* DERECHA */
 
 .infoUsuario{
 display:flex;
@@ -92,18 +88,13 @@ font-size:13px;
 
 .label{
 font-size:11px;
-color:#888;
-}
-
-.hora{
-font-weight:600;
-color:#7b5cff;
+color:#b6e8d3;
 }
 
 .usuario{
-font-weight:600;
-color:#444;
+font-weight:700;
+color:#FFD166;
+font-size:15px;
 }
-
 
 </style>
