@@ -19,37 +19,49 @@ const alergenosSeleccionados = ref([])
 const cantidadStock = ref ("")
 const cantidadUnidad = ref ("")
 const errorFormulario = ref("")
+const productoAEditar = ref(null) 
 
 
 function agregarProducto (){
     
-    if (
+  if (
     nombreProducto.value === "" ||
     nombreCategoria.value === "" ||
     cantidadStock.value === "" ||
     cantidadUnidad.value === "" ||
     alergenosSeleccionados.value.length === 0
-    ){
+  ){
     errorFormulario.value = "Todos los campos son obligatorios"
     return
-    }
+  }
 
+  if (productoAEditar.value) {
+    // Estamos editando
+    productoAEditar.value.nombre = nombreProducto.value
+    productoAEditar.value.categoria = nombreCategoria.value
+    productoAEditar.value.alergenos = [...alergenosSeleccionados.value]
+    productoAEditar.value.stock = Number(cantidadStock.value)
+    productoAEditar.value.unidad = cantidadUnidad.value
+  } else {
+    // Estamos agregando nuevo
     stock.value.push({
-    nombre: nombreProducto.value,
-    categoria: nombreCategoria.value,
-    alergenos: alergenosSeleccionados.value,
-    stock: Number(cantidadStock.value),
-    unidad: cantidadUnidad.value
+      nombre: nombreProducto.value,
+      categoria: nombreCategoria.value,
+      alergenos: [...alergenosSeleccionados.value],
+      stock: Number(cantidadStock.value),
+      unidad: cantidadUnidad.value
     })
+  }
 
-    nombreProducto.value = ""
-    nombreCategoria.value = ""
-    alergenosSeleccionados.value = []
-    cantidadStock.value = ""
-    cantidadUnidad.value = ""
-    errorFormulario.value = ""
-
-    mostrarModal.value = false
+  // limpiar formulario en ambos casos
+  productoAEditar.value = null
+  nombreProducto.value = ""
+  nombreCategoria.value = ""
+  alergenosSeleccionados.value = []
+  cantidadStock.value = ""
+  cantidadUnidad.value = ""
+  errorFormulario.value = ""
+  mostrarModal.value = false
 }
 
 function manejarAlergeno(alergeno){
@@ -64,6 +76,22 @@ function manejarAlergeno(alergeno){
 
 }
 
+function editarProducto(producto) {
+  productoAEditar.value = producto
+
+  nombreProducto.value = producto.nombre
+  nombreCategoria.value = producto.categoria
+  alergenosSeleccionados.value = [...producto.alergenos]
+  cantidadStock.value = producto.stock
+  cantidadUnidad.value = producto.unidad
+
+  mostrarModal.value = true 
+}
+
+function eliminarProducto(producto) {
+  stock.value = stock.value.filter(p => p !== producto)
+}
+
 </script>
 
 <template>
@@ -72,11 +100,18 @@ function manejarAlergeno(alergeno){
 
 <button @click="mostrarModal = true"> Agregar producto </button>
 
-<TablaStock :productos="stock" />
+<TablaStock 
+  :productos="stock" 
+  @editar="editarProducto" 
+  @eliminar="eliminarProducto" 
+/>
+
 
 <p v-show="stock.length === 0"> <!-- atributo estricto: Si no hay stock nos muestra el mensaje -->
 El inventario está vacío
 </p>
+
+
 
 <!-- Información del modal: Agregar productos -->
 

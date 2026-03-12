@@ -1,23 +1,19 @@
 <script setup>
+const props = defineProps({
+  producto: Object
+})
+const emit = defineEmits(["editar", "eliminar"])
 
 function editar() {
-  console.log("editar")
+  emit("editar", props.producto)
 }
 
 function eliminar() {
-  console.log("eliminar")
+  emit("eliminar", props.producto)
 }
-
 </script>
 
 <template>
-
-<button @click="editar">
-Editar
-</button>
-
-<button @click="eliminar">
-Eliminar
-</button>
-
+  <button @click="editar">Editar</button>
+  <button @click="eliminar">Eliminar</button>
 </template>

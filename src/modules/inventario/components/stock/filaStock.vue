@@ -23,7 +23,10 @@ defineProps({
 <td>{{ producto.alergenos.join(", ") }}</td>
 
 <td>
-<BotonesTabla />
+<BotonesTabla
+ :producto="producto"
+    @editar="$emit('editar', $event)"
+    @eliminar="$emit('eliminar', $event)" />
 </td>
 
 </tr>

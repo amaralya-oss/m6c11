@@ -28,6 +28,8 @@ defineProps({
 v-for="producto in productos"
 :key="producto.nombre"
 :producto="producto"
+@editar="$emit('editar', $event)"
+@eliminar="$emit('eliminar', $event)"
 />
 
 </tbody>
