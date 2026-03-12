@@ -2,9 +2,9 @@ const recetas = [
   {
     nombre: "Helado Frambuesa",
 
-    categorias: ["vegano", "frutal", "sin azucar"],
+    categoria: ["vegano", "fruta", "sin azucar"],
 
-    ingredientes: [
+    productos: [
       { nombre: "Frambuesa", cantidad: 1, unidad: "kg" },
       { nombre: "Leche de coco", cantidad: 1, unidad: "L" }
     ]
@@ -13,9 +13,9 @@ const recetas = [
   {
     nombre: "Helado Chocolate",
 
-    categorias: ["cremoso"],
+    categoria: ["cremoso"],
 
-    ingredientes: [
+    productos: [
       { nombre: "Cacao amargo", cantidad: 0.5, unidad: "kg" },
       { nombre: "Leche Entera", cantidad: 1, unidad: "L" }
     ]

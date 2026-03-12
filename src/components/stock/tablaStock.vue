@@ -3,7 +3,7 @@
 import FilaStock from "./filaStock.vue"
 
 defineProps({
-  ingredientes: Array
+  productos: Array
 })
 
 </script>
@@ -15,10 +15,9 @@ defineProps({
 <thead>
 <tr>
 <th>Nombre</th>
-<th>Cantidad</th>
-<th>Unidad</th>
+<th>Stock</th>
 <th>Categoría</th>
-<th>Alergenos</th>
+<th>Alérgenos</th>
 <th>Acciones</th>
 </tr>
 </thead>
@@ -26,9 +25,9 @@ defineProps({
 <tbody>
 
 <FilaStock
-v-for="ingrediente in ingredientes"
-:key="ingrediente.nombre"
-:ingrediente="ingrediente"
+v-for="producto in productos"
+:key="producto.nombre"
+:producto="producto"
 />
 
 </tbody>

@@ -1,3 +1,4 @@
+import { productos } from "./productos";
 
 export const proveedores = [
     {
@@ -6,7 +7,7 @@ export const proveedores = [
         tiempo: 2,
         unidad: "dias",
         direccion: "dirección x, Santiago",
-        categoria: "lacteos",
+        productos: ""
     },
     {
         nombre: "Damian Caceres",
@@ -14,7 +15,8 @@ export const proveedores = [
         tiempo: 1,
         unidad: "dias",
         direccion: "dirección x, Santiago",
-        categoria: "frutas"
+        productos: ""
+
     },
     {
         nombre: "Rosa Ramirez",
@@ -22,6 +24,7 @@ export const proveedores = [
         tiempo: 6,
         unidad: "horas",
         direccion: "dirección x, Santiago",
-        categoria: "frutos secos"
+        productos: ""
+
     }
 ]

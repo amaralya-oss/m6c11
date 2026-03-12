@@ -3,7 +3,7 @@
 import BotonesTabla from "./botonesTabla.vue"
 
 defineProps({
-  ingrediente: Object
+  producto: Object
 })
 
 </script>
@@ -12,15 +12,15 @@ defineProps({
 
 <tr>
 
-<td>{{ ingrediente.nombre }}</td>
+<td>{{ producto.nombre }}</td>
 
-<td>{{ ingrediente.stock }}</td>
+<td :style="{ color: producto.stock === 0 ? 'red' : 'black' }">
+{{ producto.stock }} {{ producto.unidad }} <span v-if="producto.stock === 0"> (Sin stock)</span>
+</td>
 
-<td>{{ ingrediente.unidad }}</td>
+<td>{{ producto.categoria }}</td>
 
-<td>{{ ingrediente.categoria }}</td>
-
-<td>{{ ingrediente.alergenos }}</td>
+<td>{{ producto.alergenos.join(", ") }}</td>
 
 <td>
 <BotonesTabla />

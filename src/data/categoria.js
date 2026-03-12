@@ -1,6 +1,6 @@
-export const categorias = [
+export const categoria = [
   "vegano",
   "sin azucar",
-  "frutal",
+  "fruta",
   "cremoso"
 ]
