@@ -61,15 +61,15 @@
             </article>
 
             <article class="boardCard">
-              <p>Tiendas conectadas</p>
-              <h3>12</h3>
-              <small>Con reposicion diaria</small>
+              <p>Productos cargados</p>
+              <h3>{{ totalProductos }}</h3>
+              <small>Listos para operacion</small>
             </article>
 
             <article class="boardCard">
-              <p>Ordenes hoy</p>
-              <h3>47</h3>
-              <small>Sin quiebre critico</small>
+              <p>Imagenes activas</p>
+              <h3>{{ totalImagenes }}</h3>
+              <small>Biblioteca operativa</small>
             </article>
 
             <article class="boardCard boardCardAccent">
@@ -82,7 +82,7 @@
           <div class="boardBarWrap">
             <p>Cumplimiento de abastecimiento</p>
             <div class="boardBar">
-              <span></span>
+              <span :style="{ width: cumplimientoAbastecimiento + '%' }"></span>
             </div>
           </div>
         </div>
@@ -291,7 +291,9 @@
 
 <script>
 
-import { proveedores } from "@/modules/inventario/data/proveedores.js"
+import { recetas } from "@/modules/inventario/data/recetas.js"
+import { listarStock, listarProveedores } from "@/modules/inventario/services/falsoBackInventario.js"
+import { listarImagenes } from "../services/falsoBackImagenes.js"
 
 export default {
 
@@ -313,11 +315,6 @@ emits: ["entrar"],
         { id: "casos", label: "Casos" },
         { id: "faq", label: "FAQ" },
         { id: "contacto", label: "Contacto" }
-      ],
-      heroKpis: [
-        { value: "< 24h", label: "Activacion inicial" },
-        { value: "99.1%", label: "Pedidos trazables" },
-        { value: "0", label: "Canales dispersos" }
       ],
       soluciones: [
         {
@@ -409,12 +406,6 @@ emits: ["entrar"],
           campos: ["ETA", "SLA", "Quiebres", "Volumen diario"]
         }
       ],
-      kpisOperativos: [
-        { label: "Cumplimiento de entrega", value: "96%", delta: "+4.2% vs semana pasada", avance: 96 },
-        { label: "Pedidos con ETA confirmado", value: "91%", delta: "+2.1% vs semana pasada", avance: 91 },
-        { label: "Quiebres de stock critico", value: "2", delta: "-38% vs semana pasada", avance: 78 },
-        { label: "Tiempo medio de respuesta", value: "17 min", delta: "-6 min vs semana pasada", avance: 84 }
-      ],
       casos: [
         {
           icono: "🏬",
@@ -469,22 +460,101 @@ emits: ["entrar"],
       return new Date().getFullYear()
     },
 
+    proveedoresData(){
+      return listarProveedores()
+    },
+
+    stockData(){
+      return listarStock()
+    },
+
+    imagenesData(){
+      return listarImagenes()
+    },
+
+    totalProductos(){
+      return this.stockData.length
+    },
+
+    totalImagenes(){
+      return this.imagenesData.length
+    },
+
+    productosSinStock(){
+      return this.stockData.filter((producto) => Number(producto.stock) === 0).length
+    },
+
+    productosConImagen(){
+      return this.stockData.filter((producto) => producto.thumbnail_url || producto.cloudinary_url).length
+    },
+
+    coberturaVisual(){
+      if(!this.totalProductos) return 0
+      return Math.round((this.productosConImagen / this.totalProductos) * 100)
+    },
+
+    cumplimientoAbastecimiento(){
+      if(!this.totalProductos) return 0
+      return Math.round(((this.totalProductos - this.productosSinStock) / this.totalProductos) * 100)
+    },
+
+    heroKpis(){
+      return [
+        { value: this.totalProductos, label: "Productos cargados" },
+        { value: recetas.length, label: "Recetas base" },
+        { value: this.totalImagenes, label: "Imagenes gestionadas" }
+      ]
+    },
+
+    kpisOperativos(){
+      return [
+        {
+          label: "Cumplimiento de abastecimiento",
+          value: `${this.cumplimientoAbastecimiento}%`,
+          delta: `${this.totalProductos - this.productosSinStock}/${this.totalProductos || 0} productos disponibles`,
+          avance: this.cumplimientoAbastecimiento
+        },
+        {
+          label: "Productos con imagen",
+          value: `${this.coberturaVisual}%`,
+          delta: `${this.productosConImagen}/${this.totalProductos || 0} con soporte visual`,
+          avance: this.coberturaVisual
+        },
+        {
+          label: "Quiebres de stock critico",
+          value: String(this.productosSinStock),
+          delta: this.productosSinStock === 0 ? "Sin quiebres registrados" : "Requiere reposicion operativa",
+          avance: Math.max(100 - (this.productosSinStock * 25), 0)
+        },
+        {
+          label: "Tiempo medio de respuesta",
+          value: this.etaPromedio,
+          delta: `${this.proveedoresActivos} proveedores con tiempo declarado`,
+          avance: Math.max(100 - Math.min(this.etaPromedioHoras * 4, 100), 12)
+        }
+      ]
+    },
+
     proveedoresActivos(){
-      return proveedores.length
+      return this.proveedoresData.length
     },
 
     proveedoresVisibles(){
-      return proveedores.slice(0, 4)
+      return this.proveedoresData.slice(0, 4)
     },
 
-    etaPromedio(){
-      if(!proveedores.length) return "N/D"
-      const horas = proveedores.reduce((acum, proveedor) => {
+    etaPromedioHoras(){
+      if(!this.proveedoresData.length) return 0
+      const horas = this.proveedoresData.reduce((acum, proveedor) => {
         if(proveedor.unidad === "dias") return acum + (proveedor.tiempo * 24)
         return acum + proveedor.tiempo
       }, 0)
-      const promedio = Math.round(horas / proveedores.length)
-      return `${promedio}h`
+      return Math.round(horas / this.proveedoresData.length)
+    },
+
+    etaPromedio(){
+      if(!this.proveedoresData.length) return "N/D"
+      return `${this.etaPromedioHoras}h`
     }
   },
 
