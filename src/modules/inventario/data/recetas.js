@@ -6,7 +6,8 @@ export const recetas = [
 
     productos: [
       { nombre: "Frambuesa", cantidad: 1, unidad: "kg" },
-      { nombre: "Leche de coco", cantidad: 1, unidad: "L" }
+      { nombre: "Leche de coco", cantidad: 1, unidad: "L" },
+      { nombre: "Crema Vegana", cantidad: 0.5, unidad: "L" }
     ]
   },
 
@@ -17,7 +18,8 @@ export const recetas = [
 
     productos: [
       { nombre: "Cacao amargo", cantidad: 0.5, unidad: "kg" },
-      { nombre: "Leche Entera", cantidad: 1, unidad: "L" }
+      { nombre: "Leche Entera", cantidad: 1, unidad: "L" },
+      { nombre: "Crema", cantidad: 0.5, unidad: "L" }
     ]
   }
 

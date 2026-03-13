@@ -54,12 +54,29 @@ function normalizarProveedor(proveedor) {
   }
 }
 
+function combinarListasPorNombre(listaGuardada, fallback, normalizador) {
+  const guardadaNormalizada = Array.isArray(listaGuardada)
+    ? listaGuardada.map((item) => normalizador(item)).filter((item) => item.nombre !== "")
+    : []
+
+  const nombresGuardados = new Set(
+    guardadaNormalizada.map((item) => item.nombre.toLowerCase())
+  )
+
+  const faltantes = clonarLista(fallback)
+    .map((item) => normalizador(item))
+    .filter((item) => item.nombre !== "" && !nombresGuardados.has(item.nombre.toLowerCase()))
+
+  return [...guardadaNormalizada, ...faltantes]
+}
+
 function obtenerListaNormalizada(key, fallback, normalizador) {
   const guardada = cargarLista(key)
-  const base = Array.isArray(guardada) ? guardada : clonarLista(fallback)
-  const normalizada = base.map((item) => normalizador(item)).filter((item) => item.nombre !== "")
+  const normalizada = Array.isArray(guardada)
+    ? combinarListasPorNombre(guardada, fallback, normalizador)
+    : clonarLista(fallback).map((item) => normalizador(item)).filter((item) => item.nombre !== "")
 
-  if (!Array.isArray(guardada)) {
+  if (!Array.isArray(guardada) || normalizada.length !== guardada.length) {
     guardarLista(key, normalizada)
   }
 

@@ -4,38 +4,52 @@
   <header class="topNav">
     <nav class="navWrap">
       <a href="#inicio" class="brand" @click="menuAbierto = false">
-        <span class="brandMark">🏪</span>
-        <span class="brandText">Bosque Helado B2B</span>
+        <span class="brandLogo">
+          <LogoBosque />
+        </span>
+
+        <span class="brandCopy">
+          <strong>Bosque Helado</strong>
+          <small>Control operativo para productores de helado</small>
+        </span>
       </a>
 
-      <button class="menuBtn" type="button" @click="menuAbierto = !menuAbierto" aria-label="Abrir menu">☰</button>
+      <button class="menuBtn" type="button" aria-label="Abrir menu" @click="menuAbierto = !menuAbierto">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
 
       <ul class="navLinks" :class="{ navOpen: menuAbierto }">
         <li v-for="item in menuItems" :key="item.id">
           <a :href="'#' + item.id" @click="menuAbierto = false">{{ item.label }}</a>
         </li>
-        <li class="navCtaItem">
-          <button class="btnNavCta" type="button" @click="$emit('entrar', 'panel')">Entrar Dashboard</button>
+        <li>
+          <button class="btnNavCta" type="button" @click="$emit('entrar', 'panel')">Entrar dashboard</button>
         </li>
       </ul>
     </nav>
   </header>
 
   <main class="landingMain">
-
     <section id="inicio" class="heroSection">
-      <div class="heroInfo reveal-on-scroll">
-        <p class="eyebrow">Red operativa proveedores + tiendas</p>
-        <h1 class="heroTitle">Landing operativa para abastecer tiendas sin friccion</h1>
+      <div class="heroCopy reveal-on-scroll">
+        <p class="eyebrow">Cuando el inventario se desordena, la operacion pierde dinero</p>
+        <h1 class="heroTitle">Stock visible, tareas claras y abastecimiento sin caos logístico</h1>
         <p class="heroText">
-          Unificamos abastecimiento, stock y seguimiento de entregas para que tu equipo compre,
-          reciba y reponga desde un solo flujo. Lista para usar ahora.
+          Esta plataforma fue pensada para resolver quiebres de stock, tareas duplicadas,
+          planillas manuales y entregas sin seguimiento. La portada ya presenta el problema,
+          la solucion y una demo comercial lista para mostrar.
         </p>
 
         <div class="heroActions">
-          <a href="#onboarding" class="btnPrimary">Ver activacion rapida</a>
-          <button class="btnGhost" type="button" @click="$emit('entrar', 'proveedores')">Ir a Proveedores</button>
-          <button class="btnSoft" type="button" @click="$emit('entrar', 'stock')">Ir a Inventario</button>
+          <a href="#catalogo" class="btnPrimary">Ver catalogo online</a>
+          <button class="btnGhost" type="button" @click="$emit('entrar', 'stock')">Ir a inventario</button>
+          <button class="btnSoft" type="button" @click="$emit('entrar', 'proveedores')">Ir a proveedores</button>
+        </div>
+
+        <div class="heroRibbon">
+          <span v-for="categoria in categoriasCatalogo" :key="categoria">{{ categoria }}</span>
         </div>
 
         <div class="heroMetrics">
@@ -46,53 +60,233 @@
         </div>
       </div>
 
-      <div class="heroVisual reveal-on-scroll">
-        <div class="statusBoard">
-          <div class="boardHead">
-            <p>Centro de control</p>
-            <span>Live</span>
-          </div>
+      <div class="heroGallery reveal-on-scroll">
+        <article class="galleryStage">
+          <img :src="slideActual.imagen" :alt="slideActual.alt" />
 
-          <div class="boardGrid">
-            <article class="boardCard">
-              <p>Proveedores activos</p>
-              <h3>{{ proveedoresActivos }}</h3>
-              <small>Con SLA operativo</small>
-            </article>
+          <div class="galleryOverlay">
+            <p class="miniEyebrow">Galeria comercial</p>
+            <h2>{{ slideActual.titulo }}</h2>
+            <p>{{ slideActual.texto }}</p>
 
-            <article class="boardCard">
-              <p>Productos cargados</p>
-              <h3>{{ totalProductos }}</h3>
-              <small>Listos para operacion</small>
-            </article>
-
-            <article class="boardCard">
-              <p>Imagenes activas</p>
-              <h3>{{ totalImagenes }}</h3>
-              <small>Biblioteca operativa</small>
-            </article>
-
-            <article class="boardCard boardCardAccent">
-              <p>ETA promedio</p>
-              <h3>{{ etaPromedio }}</h3>
-              <small>Despacho coordinado</small>
-            </article>
-          </div>
-
-          <div class="boardBarWrap">
-            <p>Cumplimiento de abastecimiento</p>
-            <div class="boardBar">
-              <span :style="{ width: cumplimientoAbastecimiento + '%' }"></span>
+            <div class="galleryTags">
+              <span v-for="tag in slideActual.tags" :key="tag">{{ tag }}</span>
             </div>
           </div>
+
+          <div class="galleryControls">
+            <button type="button" class="galleryArrow" aria-label="Anterior" @click="anteriorSlide">‹</button>
+            <button type="button" class="galleryArrow" aria-label="Siguiente" @click="siguienteSlide">›</button>
+          </div>
+        </article>
+
+        <div class="galleryThumbs">
+          <button
+            v-for="(slide, index) in galeriaSlides"
+            :key="slide.id"
+            class="galleryThumb"
+            :class="{ isActive: slideActiva === index }"
+            type="button"
+            @click="irASlide(index)"
+          >
+            <img :src="slide.imagen" :alt="slide.alt" />
+            <span>
+              <strong>{{ slide.titulo }}</strong>
+              <small>{{ slide.subtitulo }}</small>
+            </span>
+          </button>
         </div>
       </div>
     </section>
 
-    <section id="propuesta" class="contentSection sectionPropuesta reveal-on-scroll">
-      <div class="sectionTop">
-        <p class="sectionEyebrow">Que resuelve hoy</p>
-        <h2 class="sectionTitle">Una sola capa para proveedores y tiendas</h2>
+    <section id="dolor" class="contentSection altSection">
+      <div class="sectionTop reveal-on-scroll">
+        <p class="sectionEyebrow">El dolor del cliente</p>
+        <h2 class="sectionTitle">El caos operativo se nota en bodega, compras, tareas y reposicion</h2>
+        <p class="sectionLead">
+          Antes de hablar de tecnologia, el sitio ahora abre con problemas de negocio:
+          perdida de stock, responsabilidades difusas y cero visibilidad del flujo diario.
+        </p>
+      </div>
+
+      <div class="painGrid">
+        <article class="painCard reveal-on-scroll" v-for="(dolor, index) in doloresCliente" :key="dolor.titulo" :style="{ '--reveal-order': index }">
+          <p class="painIcon">{{ dolor.icono }}</p>
+          <p class="painValue">{{ dolor.dato }}</p>
+          <h3>{{ dolor.titulo }}</h3>
+          <p>{{ dolor.texto }}</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="catalogo" class="contentSection">
+      <div class="sectionTop reveal-on-scroll">
+        <p class="sectionEyebrow">Catalogo online</p>
+        <h2 class="sectionTitle">El cliente puede ver insumos reales antes de entrar al sistema</h2>
+        <p class="sectionLead">
+          El cliente puede filtrar y explorar los insumos ya cargados. No se inventan productos nuevos:
+          la grilla sale de inventario y se cruza con recetas base ya existentes en el proyecto.
+        </p>
+      </div>
+
+      <div class="catalogToolbar reveal-on-scroll">
+        <label class="catalogSearch">
+          <span>Buscar insumo</span>
+          <input
+            v-model.trim="catalogoBusqueda"
+            type="text"
+            placeholder="Frambuesa, crema, crema vegana, leche..."
+          />
+        </label>
+
+        <div class="filterGroup">
+          <p>Categoria</p>
+          <div class="filterRow">
+            <button
+              class="filterChip"
+              :class="{ isActive: categoriaActiva === 'todos' }"
+              type="button"
+              @click="seleccionarCategoria('todos')"
+            >
+              Todo
+            </button>
+
+            <button
+              v-for="categoria in categoriasCatalogo"
+              :key="categoria"
+              class="filterChip"
+              :class="{ isActive: categoriaActiva === categoria }"
+              type="button"
+              @click="seleccionarCategoria(categoria)"
+            >
+              {{ categoria }}
+            </button>
+          </div>
+        </div>
+
+        <div class="filterGroup">
+          <p>Receta base</p>
+          <div class="filterRow">
+            <button
+              class="filterChip"
+              :class="{ isActive: recetaActiva === 'todas' }"
+              type="button"
+              @click="seleccionarReceta('todas')"
+            >
+              Todas
+            </button>
+
+            <button
+              v-for="receta in recetasBase"
+              :key="receta.nombre"
+              class="filterChip"
+              :class="{ isActive: recetaActiva === receta.nombre }"
+              type="button"
+              @click="seleccionarReceta(receta.nombre)"
+            >
+              {{ receta.nombre }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <article v-if="productoActivo" class="catalogSpotlight reveal-on-scroll">
+        <div class="spotlightHeader">
+          <div>
+            <p class="miniEyebrow">Ficha rapida</p>
+            <h3>{{ productoActivo.nombre }}</h3>
+            <p>{{ productoActivoResumen }}</p>
+          </div>
+
+          <div class="spotlightSummary">
+            <article>
+              <small>Stock</small>
+              <strong>{{ productoActivo.stock }} {{ productoActivo.unidad }}</strong>
+            </article>
+            <article>
+              <small>Categoria</small>
+              <strong>{{ productoActivo.categoria }}</strong>
+            </article>
+            <article>
+              <small>ETA red</small>
+              <strong>{{ etaPromedio }}</strong>
+            </article>
+          </div>
+        </div>
+
+        <div class="spotlightMeta">
+          <div class="metaBlock">
+            <p>Alergenos</p>
+            <span v-for="alergeno in productoActivo.alergenos" :key="alergeno">{{ alergeno }}</span>
+          </div>
+
+          <div class="metaBlock">
+            <p>Recetas asociadas</p>
+            <span v-for="receta in productoActivoRecetas" :key="receta">{{ receta }}</span>
+            <span v-if="!productoActivoRecetas.length">Sin receta base</span>
+          </div>
+
+          <div class="metaActions">
+            <button class="btnPrimary" type="button" @click="$emit('entrar', 'stock')">Ver inventario</button>
+            <button class="btnGhost" type="button" @click="$emit('entrar', 'proveedores')">Ver proveedores</button>
+          </div>
+        </div>
+      </article>
+
+      <div class="catalogGrid reveal-on-scroll">
+        <article
+          v-for="producto in productosFiltrados"
+          :key="producto.nombre"
+          class="catalogCard"
+          :class="{ isSelected: productoActivo && productoActivo.nombre === producto.nombre }"
+          @mouseenter="seleccionarProducto(producto.nombre)"
+          @focusin="seleccionarProducto(producto.nombre)"
+          @click="seleccionarProducto(producto.nombre)"
+        >
+          <div class="catalogCardHead">
+            <p class="catalogCategory">{{ producto.categoria }}</p>
+            <span class="stockBadge" :class="estadoStockClase(producto)">
+              {{ estadoStockTexto(producto) }}
+            </span>
+          </div>
+
+          <h3>{{ producto.nombre }}</h3>
+          <p class="catalogStock">{{ producto.stock }} {{ producto.unidad }} disponibles</p>
+
+          <div class="catalogTags">
+            <span v-for="alergeno in producto.alergenos" :key="alergeno">{{ alergeno }}</span>
+          </div>
+
+          <p class="catalogRecipe">
+            {{ recetasPorProducto[producto.nombre]?.length ? recetasPorProducto[producto.nombre].join(" / ") : "Sin receta base asociada" }}
+          </p>
+        </article>
+
+        <article v-if="!productosFiltrados.length" class="catalogEmpty">
+          <h3>Sin coincidencias</h3>
+          <p>Prueba con otra categoria, otra receta o limpia la busqueda.</p>
+          <button class="btnGhost" type="button" @click="limpiarCatalogo">Limpiar filtros</button>
+        </article>
+      </div>
+
+      <div class="providerRail reveal-on-scroll">
+        <div class="providerIntro">
+          <p class="sectionEyebrow">Red activa</p>
+          <h3>Proveedores visibles desde la misma landing</h3>
+        </div>
+
+        <div class="providerPills">
+          <span class="providerPill" v-for="proveedor in proveedoresVisibles" :key="proveedor.nombre">
+            {{ proveedor.nombre }} · {{ proveedor.tiempo }} {{ proveedor.unidad }}
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <section id="propuesta" class="contentSection altSection">
+      <div class="sectionTop reveal-on-scroll">
+        <p class="sectionEyebrow">Propuesta</p>
+        <h2 class="sectionTitle">Lo comercial y lo operativo ya hablan el mismo idioma</h2>
       </div>
 
       <div class="solutionGrid">
@@ -106,94 +300,62 @@
           <p class="solutionIcon">{{ solucion.icono }}</p>
           <h3>{{ solucion.titulo }}</h3>
           <p>{{ solucion.texto }}</p>
-          <p class="solutionImpacto">{{ solucion.impacto }}</p>
-          <button class="solutionBtn" type="button">Ver detalle operativo</button>
-        </article>
-      </div>
-
-      <Transition name="modalFade">
-        <div v-if="solucionActiva" class="solutionModalOverlay" @click.self="cerrarSolucion">
-          <article class="solutionModalCard">
-            <p class="solutionModalIcon">{{ solucionActiva.icono }}</p>
-            <h3>{{ solucionActiva.titulo }}</h3>
-            <p class="solutionModalText">{{ solucionActiva.texto }}</p>
-            <ul class="solutionModalList">
-              <li v-for="item in solucionActiva.puntos" :key="item">{{ item }}</li>
-            </ul>
-            <p class="solutionModalImpact">Impacto: {{ solucionActiva.impacto }}</p>
-            <div class="solutionModalActions">
-              <button class="btnPrimary" type="button" @click="$emit('entrar', 'panel')">Abrir dashboard</button>
-              <button class="btnGhost" type="button" @click="cerrarSolucion">Cerrar</button>
-            </div>
-          </article>
-        </div>
-      </Transition>
-    </section>
-
-    <section id="onboarding" class="contentSection altSection reveal-on-scroll">
-      <div class="sectionTop">
-        <p class="sectionEyebrow">Activacion</p>
-        <h2 class="sectionTitle">Onboarding para estar productivo en 1 jornada</h2>
-      </div>
-
-      <div class="onboardingGrid">
-        <article class="onboardingCard reveal-on-scroll" v-for="(paso, index) in onboarding" :key="paso.titulo" :style="{ '--reveal-order': index }">
-          <span class="stepBadge">{{ index + 1 }}</span>
-          <h3>{{ paso.titulo }}</h3>
-          <p>{{ paso.texto }}</p>
-          <small>{{ paso.tiempo }}</small>
+          <p class="solutionImpact">{{ solucion.impacto }}</p>
+          <button class="solutionBtn" type="button">Ver detalle</button>
         </article>
       </div>
     </section>
 
-    <section id="catalogo" class="contentSection reveal-on-scroll">
-      <div class="sectionTop">
-        <p class="sectionEyebrow">Modulos clave</p>
-        <h2 class="sectionTitle">Todo anclado al flujo real del negocio</h2>
-      </div>
-
-      <div class="moduleGrid">
-        <article class="moduleCard reveal-on-scroll" v-for="(modulo, index) in modulos" :key="modulo.nombre" :style="{ '--reveal-order': index }">
-          <h3>{{ modulo.nombre }}</h3>
-          <p>{{ modulo.detalle }}</p>
-          <ul>
-            <li v-for="campo in modulo.campos" :key="campo">{{ campo }}</li>
-          </ul>
-        </article>
-      </div>
-
-      <div class="providerStrip">
-        <h3>Red de proveedores ya cargada</h3>
-        <div class="providerPills">
-          <span class="providerPill" v-for="proveedor in proveedoresVisibles" :key="proveedor.nombre">
-            {{ proveedor.nombre }} · {{ proveedor.tiempo }} {{ proveedor.unidad }}
-          </span>
-        </div>
-      </div>
-    </section>
-
-    <section id="kpi" class="contentSection sectionKpi reveal-on-scroll">
-      <div class="sectionTop">
-        <p class="sectionEyebrow">KPI ejecutivos</p>
-        <h2 class="sectionTitle">Indicadores para decisiones de compra y reposicion</h2>
-      </div>
-
-      <div class="kpiGrid">
-        <article class="kpiCard" v-for="kpi in kpisOperativos" :key="kpi.label">
-          <p class="kpiLabel">{{ kpi.label }}</p>
-          <p class="kpiValue">{{ kpi.value }}</p>
-          <p class="kpiDelta">{{ kpi.delta }}</p>
-          <div class="kpiBar">
-            <span :style="{ width: kpi.avance + '%' }"></span>
+    <section id="demo" class="contentSection">
+      <div class="splitBoard">
+        <div class="splitColumn">
+          <div class="sectionTop reveal-on-scroll">
+            <p class="sectionEyebrow">Demostracion en vivo</p>
+            <h2 class="sectionTitle">Un caso real para mostrar el “aha moment” en menos de cinco minutos</h2>
+            <p class="sectionLead">
+              El flujo ya está contado como demo comercial: llega cargamento, se registra stock,
+              se asigna tarea y el gerente ve el impacto al instante.
+            </p>
           </div>
-        </article>
+
+          <div class="onboardingGrid">
+            <article class="onboardingCard reveal-on-scroll" v-for="(paso, index) in onboarding" :key="paso.titulo" :style="{ '--reveal-order': index }">
+              <span class="stepBadge">{{ index + 1 }}</span>
+              <h3>{{ paso.titulo }}</h3>
+              <p>{{ paso.texto }}</p>
+              <small>{{ paso.tiempo }}</small>
+            </article>
+          </div>
+        </div>
+
+        <div id="kpi" class="splitColumn">
+          <div class="sectionTop reveal-on-scroll">
+            <p class="sectionEyebrow">KPI</p>
+            <h2 class="sectionTitle">Indicadores alimentados por inventario, recetas e imagenes</h2>
+          </div>
+
+          <div class="kpiGrid">
+            <article class="kpiCard reveal-on-scroll" v-for="(kpi, index) in kpisOperativos" :key="kpi.label" :style="{ '--reveal-order': index }">
+              <p class="kpiLabel">{{ kpi.label }}</p>
+              <p class="kpiValue">{{ kpi.value }}</p>
+              <p class="kpiDelta">{{ kpi.delta }}</p>
+              <div class="kpiBar">
+                <span :style="{ width: kpi.avance + '%' }"></span>
+              </div>
+            </article>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section id="casos" class="contentSection altSection reveal-on-scroll">
-      <div class="sectionTop">
-        <p class="sectionEyebrow">Casos de uso</p>
-        <h2 class="sectionTitle">Proveedores y tiendas trabajando en la misma mesa</h2>
+    <section id="casos" class="contentSection altSection">
+      <div class="sectionTop reveal-on-scroll">
+        <p class="sectionEyebrow">Modalidad comercial</p>
+        <h2 class="sectionTitle">Una propuesta facil de vender: implementacion, salida y soporte</h2>
+        <p class="sectionLead">
+          El cierre del pitch ya no queda abierto. Esta sección deja clara una modalidad de trabajo
+          y pago, incluso si el precio final se ajusta por sedes, volumen y alcance.
+        </p>
       </div>
 
       <div class="caseGrid">
@@ -205,61 +367,94 @@
               <p class="caseRol">{{ caso.rol }}</p>
             </div>
           </div>
-          <p class="caseTexto">"{{ caso.texto }}"</p>
+          <p class="caseTexto">{{ caso.texto }}</p>
         </article>
       </div>
     </section>
 
-    <section id="faq" class="contentSection reveal-on-scroll">
-      <div class="sectionTop">
-        <p class="sectionEyebrow">FAQ operativo</p>
-        <h2 class="sectionTitle">Lo necesario para salir en produccion</h2>
+    <section id="faq" class="contentSection">
+      <div class="sectionTop reveal-on-scroll">
+        <p class="sectionEyebrow">FAQ</p>
+        <h2 class="sectionTitle">Lo necesario para explicar el sistema sin relleno</h2>
       </div>
 
       <div class="faqList">
-        <article class="faqItem" v-for="(faq, index) in faqs" :key="faq.pregunta">
+        <article class="faqItem reveal-on-scroll" v-for="(faq, index) in faqs" :key="faq.pregunta" :style="{ '--reveal-order': index }">
           <button class="faqQuestion" type="button" @click="toggleFaq(index)">
             <span>{{ faq.pregunta }}</span>
-            <span>{{ faqAbierta === index ? '−' : '+' }}</span>
+            <span>{{ faqAbierta === index ? "−" : "+" }}</span>
           </button>
           <p v-show="faqAbierta === index" class="faqAnswer">{{ faq.respuesta }}</p>
         </article>
       </div>
     </section>
 
-    <section id="contacto" class="contentSection altSection reveal-on-scroll">
-      <div class="sectionTop">
+    <section id="contacto" class="contentSection contactSection">
+      <div class="sectionTop reveal-on-scroll">
         <p class="sectionEyebrow">Contacto</p>
-        <h2 class="sectionTitle">Activa tu red de proveedores y tiendas</h2>
+        <h2 class="sectionTitle">Solicita activacion para tu red de produccion y abastecimiento</h2>
       </div>
 
       <div class="contactGrid">
-        <form class="contactForm" @submit.prevent="enviarMensaje">
+        <form class="contactForm reveal-on-scroll" @submit.prevent="enviarMensaje">
           <label>Nombre empresa</label>
-          <input v-model="form.empresa" type="text" placeholder="Ej: Cadena Sur SpA" />
+          <input v-model.trim="form.empresa" type="text" placeholder="Ej: Productora Sur SpA" />
 
           <label>Email operativo</label>
-          <input v-model="form.email" type="email" placeholder="operaciones@empresa.cl" />
+          <input v-model.trim="form.email" type="email" placeholder="operaciones@empresa.cl" />
 
           <label>Objetivo</label>
-          <textarea v-model="form.mensaje" rows="4" placeholder="Cuantas tiendas, proveedores y fecha de salida"></textarea>
+          <textarea
+            v-model.trim="form.mensaje"
+            rows="4"
+            placeholder="Lineas de producto, volumen esperado y fecha de salida"
+          ></textarea>
 
           <button type="submit" class="btnPrimary">Solicitar activacion</button>
           <p v-if="estadoMensaje" class="estadoMensaje">{{ estadoMensaje }}</p>
         </form>
 
-        <div class="contactMapCard">
-          <h3>Base operativa Temuco</h3>
-          <p>Condell 485, esquina O'Higgins. Mesa de operaciones para red de proveedores y tiendas.</p>
-          <iframe title="Mapa Temuco" loading="lazy" :src="mapaTemuco"></iframe>
-        </div>
+        <article class="contactVisual reveal-on-scroll">
+          <div class="contactVisualCopy">
+            <p class="miniEyebrow">Base operativa</p>
+            <h3>Temuco</h3>
+            <p>Condell 485, esquina O'Higgins. Punto de coordinacion para compras, proveedores y despacho.</p>
+          </div>
+          <img :src="fotoMateriasPrimas" alt="Materias primas para elaboracion de helado" />
+        </article>
       </div>
     </section>
   </main>
 
+  <Transition name="modalFade">
+    <div v-if="solucionActiva" class="solutionModalOverlay" @click.self="cerrarSolucion">
+      <article class="solutionModalCard">
+        <p class="solutionModalIcon">{{ solucionActiva.icono }}</p>
+        <h3>{{ solucionActiva.titulo }}</h3>
+        <p class="solutionModalText">{{ solucionActiva.texto }}</p>
+        <ul class="solutionModalList">
+          <li v-for="item in solucionActiva.puntos" :key="item">{{ item }}</li>
+        </ul>
+        <p class="solutionModalImpact">Impacto: {{ solucionActiva.impacto }}</p>
+        <div class="solutionModalActions">
+          <button class="btnPrimary" type="button" @click="$emit('entrar', 'panel')">Abrir dashboard</button>
+          <button class="btnGhost" type="button" @click="cerrarSolucion">Cerrar</button>
+        </div>
+      </article>
+    </div>
+  </Transition>
+
   <footer class="siteFooter">
-    <p>© {{ anioActual }} Bosque Helado B2B · Plataforma proveedores y tiendas</p>
-    <button class="btnFooter" type="button" @click="$emit('entrar', 'panel')">Abrir Dashboard</button>
+    <div class="footerWrap">
+      <div class="footerCopy">
+        <p>© {{ anioActual }} Bosque Helado · Catalogo online y operacion B2B</p>
+        <small>
+          Plataforma pensada para dar visibilidad en tiempo real sobre inventario, tareas y abastecimiento,
+          con una experiencia comercial clara para presentar la solucion sin mostrar complejidad tecnica.
+        </small>
+      </div>
+      <button class="btnFooter" type="button" @click="$emit('entrar', 'panel')">Abrir dashboard</button>
+    </div>
   </footer>
 
   <a
@@ -278,8 +473,8 @@
     v-show="mostrarSubir"
     class="floatingTop"
     type="button"
-    @click="irAlInicio"
     aria-label="Subir al inicio"
+    @click="irAlInicio"
   >
     <svg viewBox="0 0 16 16" aria-hidden="true">
       <path d="M8 3.2 2.4 8.8l1.1 1.1L7.2 6.2V13h1.6V6.2l3.7 3.7 1.1-1.1z"/>
@@ -291,157 +486,191 @@
 
 <script>
 
+import LogoBosque from "@/modules/panelTareas/layout/LogoBosque.vue"
 import { recetas } from "@/modules/inventario/data/recetas.js"
 import { listarStock, listarProveedores } from "@/modules/inventario/services/falsoBackInventario.js"
+import { listarEstadoTareas } from "../services/falsoBackTareas.js"
 import { listarImagenes } from "../services/falsoBackImagenes.js"
+import fotoAplicacion from "@/assets/landing/galeria-aplicacion.jpg"
+import fotoFrutos from "@/assets/landing/galeria-frutos.jpg"
+import fotoLacteo from "@/assets/landing/galeria-lacteos.jpg"
+import fotoMateriasPrimas from "@/assets/landing/materias-primas-raw.jpg"
 
 export default {
 
-emits: ["entrar"],
+  components: {
+    LogoBosque
+  },
 
-  data(){
+  emits: ["entrar"],
+
+  data() {
     return {
       menuAbierto: false,
       mostrarSubir: false,
       solucionActiva: null,
       faqAbierta: 0,
       revealObserver: null,
+      carouselTimer: null,
+      slideActiva: 0,
+      catalogoBusqueda: "",
+      categoriaActiva: "todos",
+      recetaActiva: "todas",
+      productoActivoNombre: "",
+      fotoMateriasPrimas,
       menuItems: [
         { id: "inicio", label: "Inicio" },
-        { id: "propuesta", label: "Propuesta" },
-        { id: "onboarding", label: "Onboarding" },
+        { id: "dolor", label: "Dolor" },
         { id: "catalogo", label: "Catalogo" },
+        { id: "propuesta", label: "Propuesta" },
+        { id: "demo", label: "Demo" },
         { id: "kpi", label: "KPI" },
-        { id: "casos", label: "Casos" },
+        { id: "casos", label: "Modalidad" },
         { id: "faq", label: "FAQ" },
         { id: "contacto", label: "Contacto" }
       ],
+      galeriaSlides: [
+        {
+          id: "frutos",
+          titulo: "Frutos y pulpas",
+          subtitulo: "Bases para sabores vivos",
+          texto: "Una galeria pensada para hablar de materias primas y familias de insumo, no de fotos decorativas sin relacion.",
+          alt: "Frutos y pulpas para elaboracion de helado",
+          imagen: fotoFrutos,
+          tags: ["fruta", "sorbete", "temporada"]
+        },
+        {
+          id: "lacteos",
+          titulo: "Bases lacteas",
+          subtitulo: "Soporte para lineas cremosas",
+          texto: "La vista comercial puede explicar bases, volumen y continuidad de abastecimiento desde la misma portada.",
+          alt: "Bases lacteas para helado",
+          imagen: fotoLacteo,
+          tags: ["lacteos", "cremoso", "produccion"]
+        },
+        {
+          id: "aplicacion",
+          titulo: "Aplicacion final",
+          subtitulo: "De la materia prima al producto",
+          texto: "Se muestra tambien el destino final del insumo para que la experiencia conecte con el lenguaje real del negocio heladero.",
+          alt: "Aplicacion final del helado",
+          imagen: fotoAplicacion,
+          tags: ["carta", "presentacion", "venta"]
+        },
+        {
+          id: "materias-primas",
+          titulo: "Materias primas esenciales",
+          subtitulo: "Base para lineas cremosas y veganas",
+          texto: "En vez de mostrar personas o escenas sin sentido, este bloque refuerza materias primas, bases y continuidad de abastecimiento.",
+          alt: "Materias primas para elaboracion de helado",
+          imagen: fotoMateriasPrimas,
+          tags: ["materias primas", "bases", "stock"]
+        }
+      ],
       soluciones: [
         {
+          icono: "🧊",
+          titulo: "Catalogo conectado al inventario",
+          texto: "La landing muestra insumos reales del sistema y los cruza con recetas base sin crear datasets paralelos.",
+          impacto: "La conversacion comercial arranca con datos y no con promesas vacias.",
+          puntos: [
+            "Filtros por categoria y receta",
+            "Seleccion de producto desde la grilla",
+            "Paso directo a inventario"
+          ]
+        },
+        {
+          icono: "🎞️",
+          titulo: "Galeria con relato visual",
+          texto: "Las fotos pasan a ser una galeria real con navegacion y foco por familia de insumo o proceso.",
+          impacto: "La portada deja de parecer una ficha financiera y gana lectura comercial.",
+          puntos: [
+            "Carrusel con controles",
+            "Miniaturas clickeables",
+            "Copia conectada al negocio"
+          ]
+        },
+        {
           icono: "📦",
-          titulo: "Abastecimiento sincronizado",
-          texto: "Tiendas y proveedores operan con el mismo estado de stock, sin llamadas manuales.",
-          impacto: "Reduce quiebres y sobrestock en la misma semana.",
+          titulo: "Abastecimiento visible",
+          texto: "Stock, tiempos medios y proveedores activos aparecen en la misma pagina como respaldo de la propuesta.",
+          impacto: "El cliente entiende mas rapido que hay una base operativa detras.",
           puntos: [
-            "Entrada y salida con SKU",
-            "Estados de entrega en tiempo real",
-            "Trazabilidad por proveedor"
-          ]
-        },
-        {
-          icono: "🧭",
-          titulo: "Ruteo de entregas",
-          texto: "Priorizacion por urgencia, sucursal y ventana horaria para retiro o despacho.",
-          impacto: "Mejora cumplimiento de SLA y baja reprocesos.",
-          puntos: [
-            "Agenda por franja horaria",
-            "Control de cierres de tienda",
-            "Alertas de atraso"
-          ]
-        },
-        {
-          icono: "🧾",
-          titulo: "Gobierno de catalogo",
-          texto: "Ingredientes, alergenos, tipo de producto y proveedor en un catalogo central.",
-          impacto: "Cumplimiento normativo y comercial mas rapido.",
-          puntos: [
-            "Filtro por vegano, celiaco y sin azucar",
-            "Ficha tecnica por producto",
-            "Validaciones antes de publicar"
+            "Indicadores de disponibilidad",
+            "ETA promedio desde proveedores",
+            "Red visible en la misma landing"
           ]
         },
         {
           icono: "📊",
-          titulo: "KPI accionables",
-          texto: "Panel ejecutivo con cumplimiento de abastecimiento, tiempos y incidentes.",
-          impacto: "Decisiones de compra con evidencia diaria.",
+          titulo: "Puerta de entrada al sistema",
+          texto: "La experiencia comercial no queda separada del dashboard, inventario y proveedores.",
+          impacto: "La pagina invita, explica y luego deriva al flujo real con un clic.",
           puntos: [
-            "KPI por tienda y proveedor",
-            "Tendencia semanal",
-            "Alertas operativas"
+            "CTA a dashboard",
+            "CTA a inventario",
+            "CTA a proveedores"
           ]
         }
       ],
       onboarding: [
         {
-          titulo: "Levantamiento de datos base",
-          texto: "Carga inicial de proveedores, tiendas, categorias y horarios de atencion.",
-          tiempo: "Duracion estimada: 45 min"
+          titulo: "Llega un cargamento de crema",
+          texto: "Se registran 50 litros de Crema o Crema Vegana en inventario sin depender de una planilla externa.",
+          tiempo: "Paso 1"
         },
         {
-          titulo: "Configuracion de flujo comercial",
-          texto: "Define retiro en tienda, pedido online y ventanas de entrega por sucursal.",
-          tiempo: "Duracion estimada: 35 min"
+          titulo: "Se asigna la tarea de bodega",
+          texto: "En la misma historia comercial puedes mostrar que el equipo deja una tarea operativa pendiente y visible.",
+          tiempo: "Paso 2"
         },
         {
-          titulo: "Publicacion de catalogo",
-          texto: "Activa fichas con ingredientes, alergenos y filtros para clientes finales.",
-          tiempo: "Duracion estimada: 30 min"
+          titulo: "El dashboard refleja el cambio",
+          texto: "El gerente ve disponibilidad, pendientes y tiempos medios sin pedir reportes manuales por WhatsApp.",
+          tiempo: "Paso 3"
         },
         {
-          titulo: "Monitoreo en dashboard",
-          texto: "Operacion diaria desde panel con KPI, inventario y proveedores conectados.",
-          tiempo: "Duracion estimada: inmediata"
-        }
-      ],
-      modulos: [
-        {
-          nombre: "Modulo Proveedores",
-          detalle: "Alta, edicion y control de tiempos de entrega por proveedor.",
-          campos: ["Nombre", "Telefono", "Direccion", "SLA", "Productos asociados"]
-        },
-        {
-          nombre: "Modulo Inventario",
-          detalle: "Stock por producto con advertencias y estado de tienda abierta/cerrada.",
-          campos: ["SKU", "Stock", "Categoria", "Alergenos", "Proveedor"]
-        },
-        {
-          nombre: "Modulo Imagenes",
-          detalle: "Carga por lote y carpeta para activos visuales del catalogo.",
-          campos: ["Drag and drop", "Destino", "Validacion", "Biblioteca"]
-        },
-        {
-          nombre: "Modulo KPI",
-          detalle: "Metricas de cumplimiento, eficiencia operativa y respuesta.",
-          campos: ["ETA", "SLA", "Quiebres", "Volumen diario"]
+          titulo: "Se valida la red de abastecimiento",
+          texto: "Queda claro quién abastece, cuánto tarda y qué hacer si el stock vuelve a caer.",
+          tiempo: "Paso 4"
         }
       ],
       casos: [
         {
-          icono: "🏬",
-          autor: "Cadena Sur",
-          rol: "Operaciones retail",
-          texto: "En 3 dias alineamos compras y reposicion entre tiendas. Dejamos de operar por WhatsApp suelto."
+          icono: "🧾",
+          autor: "Implementacion inicial",
+          rol: "Pago por puesta en marcha",
+          texto: "Diagnostico, configuracion base y carga inicial de inventario, proveedores y flujo comercial."
         },
         {
-          icono: "🚛",
-          autor: "Distribuidora Malleco",
-          rol: "Proveedor logistica",
-          texto: "El tablero nos mostro horarios reales de recepcion y bajamos entregas fallidas."
+          icono: "🎓",
+          autor: "Capacitacion y salida",
+          rol: "Pago por hito de entrega",
+          texto: "Activacion con demo guiada, entrenamiento del equipo y acompanamiento durante la salida."
         },
         {
-          icono: "🧑‍💼",
-          autor: "Equipo comercial",
-          rol: "Jefatura",
-          texto: "Ahora negociamos con datos de ETA y cumplimiento, no con percepcion."
+          icono: "🔁",
+          autor: "Soporte mensual",
+          rol: "Modalidad recurrente",
+          texto: "Ajustes, soporte y evolucion continua para que la operacion no vuelva al caos manual."
         }
       ],
       faqs: [
         {
-          pregunta: "¿Esto reemplaza mi dashboard actual?",
-          respuesta: "No. El dashboard sigue igual; esta landing es la puerta comercial y operativa para activar proveedores y tiendas."
+          pregunta: "¿Que pasa si se cae internet?",
+          respuesta: "La demo puede explicarse con el flujo ya cargado y, a nivel de propuesta, la operacion puede contemplar modos locales o sincronizacion diferida segun alcance."
         },
         {
-          pregunta: "¿Cuanto tarda la salida en marcha?",
-          respuesta: "Con datos minimos, la activacion queda en una jornada y el equipo opera el mismo dia."
+          pregunta: "¿Es dificil de usar para operarios?",
+          respuesta: "No. La demo muestra acciones concretas: registrar stock, revisar pendientes y abrir proveedores, sin lenguaje tecnico."
         },
         {
-          pregunta: "¿Puedo cargar catalogo con filtros de alergeno?",
-          respuesta: "Si. El flujo contempla ingredientes, alergenos, categoria y atributos como vegano/celiaco/sin azucar."
+          pregunta: "¿Como evitamos el efecto demo?",
+          respuesta: "Usando datos de prueba creibles como Frambuesa, Crema, Crema Vegana, Cacao y Leche Entera en vez de productos genericos."
         },
         {
-          pregunta: "¿Se integra con carga de imagenes?",
-          respuesta: "Si. Desde el dashboard puedes cargar por lote y dejar biblioteca lista para catalogo y tienda."
+          pregunta: "¿Y si algo falla en vivo?",
+          respuesta: "La landing ya cuenta el caso de uso completo. Si una vista falla, el equipo puede explicar el resultado esperado y continuar con seguridad."
         }
       ],
       form: {
@@ -450,81 +679,210 @@ emits: ["entrar"],
         mensaje: ""
       },
       estadoMensaje: "",
-      mapaTemuco: "https://www.openstreetmap.org/export/embed.html?bbox=-72.6086%2C-38.7447%2C-72.5946%2C-38.7361&layer=mapnik&marker=-38.7404%2C-72.6009",
-      whatsAppUrl: "https://wa.me/56991234567?text=Hola%20Bosque%20Helado%20B2B%2C%20necesito%20activar%20proveedores%20y%20tiendas"
+      whatsAppUrl: "https://wa.me/56991234567?text=Hola%20Bosque%20Helado%2C%20quiero%20ver%20el%20catalogo%20de%20insumos"
     }
   },
 
   computed: {
-    anioActual(){
+    anioActual() {
       return new Date().getFullYear()
     },
 
-    proveedoresData(){
-      return listarProveedores()
+    recetasBase() {
+      return recetas
     },
 
-    stockData(){
+    stockData() {
       return listarStock()
     },
 
-    imagenesData(){
+    proveedoresData() {
+      return listarProveedores()
+    },
+
+    estadoTareas() {
+      return listarEstadoTareas()
+    },
+
+    imagenesData() {
       return listarImagenes()
     },
 
-    totalProductos(){
+    slideActual() {
+      return this.galeriaSlides[this.slideActiva] || this.galeriaSlides[0]
+    },
+
+    totalProductos() {
       return this.stockData.length
     },
 
-    totalImagenes(){
+    totalImagenes() {
       return this.imagenesData.length
     },
 
-    productosSinStock(){
+    tareasPendientes() {
+      return this.estadoTareas.tareas.filter((tarea) => !tarea.completada).length
+    },
+
+    tareasCompletadas() {
+      return this.estadoTareas.tareas.filter((tarea) => tarea.completada).length
+    },
+
+    productosSinStock() {
       return this.stockData.filter((producto) => Number(producto.stock) === 0).length
     },
 
-    productosConImagen(){
+    productosConImagen() {
       return this.stockData.filter((producto) => producto.thumbnail_url || producto.cloudinary_url).length
     },
 
-    coberturaVisual(){
-      if(!this.totalProductos) return 0
+    coberturaVisual() {
+      if (!this.totalProductos) return 0
       return Math.round((this.productosConImagen / this.totalProductos) * 100)
     },
 
-    cumplimientoAbastecimiento(){
-      if(!this.totalProductos) return 0
+    cumplimientoAbastecimiento() {
+      if (!this.totalProductos) return 0
       return Math.round(((this.totalProductos - this.productosSinStock) / this.totalProductos) * 100)
     },
 
-    heroKpis(){
+    categoriasCatalogo() {
+      return [...new Set(this.stockData.map((producto) => producto.categoria).filter(Boolean))]
+    },
+
+    recetasPorProducto() {
+      return this.recetasBase.reduce((acum, receta) => {
+        receta.productos.forEach((item) => {
+          if (!acum[item.nombre]) {
+            acum[item.nombre] = []
+          }
+
+          acum[item.nombre].push(receta.nombre)
+        })
+
+        return acum
+      }, {})
+    },
+
+    productosFiltrados() {
+      const termino = this.catalogoBusqueda.toLowerCase()
+
+      return this.stockData.filter((producto) => {
+        const coincideBusqueda = termino === "" || [
+          producto.nombre,
+          producto.categoria,
+          ...producto.alergenos
+        ].some((valor) => String(valor).toLowerCase().includes(termino))
+
+        const coincideCategoria = this.categoriaActiva === "todos" || producto.categoria === this.categoriaActiva
+        const coincideReceta = this.recetaActiva === "todas" || (this.recetasPorProducto[producto.nombre] || []).includes(this.recetaActiva)
+
+        return coincideBusqueda && coincideCategoria && coincideReceta
+      })
+    },
+
+    productoActivo() {
+      return this.productosFiltrados.find((producto) => producto.nombre === this.productoActivoNombre) || this.productosFiltrados[0] || null
+    },
+
+    productoActivoRecetas() {
+      if (!this.productoActivo) return []
+      return this.recetasPorProducto[this.productoActivo.nombre] || []
+    },
+
+    productoActivoResumen() {
+      if (!this.productoActivo) {
+        return "Selecciona un insumo para ver categoria, stock, alergenos y recetas asociadas."
+      }
+
+      const recetasTexto = this.productoActivoRecetas.length
+        ? this.productoActivoRecetas.join(" / ")
+        : "sin receta base asociada"
+
+      return `${this.productoActivo.nombre} pertenece a ${this.productoActivo.categoria}, tiene ${this.productoActivo.stock} ${this.productoActivo.unidad} disponibles y participa en ${recetasTexto}.`
+    },
+
+    doloresCliente() {
       return [
-        { value: this.totalProductos, label: "Productos cargados" },
-        { value: recetas.length, label: "Recetas base" },
-        { value: this.totalImagenes, label: "Imagenes gestionadas" }
+        {
+          icono: "📉",
+          titulo: "Quiebres de stock",
+          dato: `${this.productosSinStock} insumos criticos`,
+          texto: "Cuando compras y bodega no comparten una sola vista, aparecen faltantes justo cuando se necesita producir."
+        },
+        {
+          icono: "🗂️",
+          titulo: "Planillas desalineadas",
+          dato: `${this.totalProductos} insumos en juego`,
+          texto: "El stock vive en archivos manuales, cada area opera por separado y nadie sabe cual es la version correcta."
+        },
+        {
+          icono: "✅",
+          titulo: "Tareas sin seguimiento",
+          dato: `${this.tareasPendientes} pendientes`,
+          texto: "Las tareas se reparten por mensaje o memoria, sin responsables claros ni cierre visible para jefatura."
+        },
+        {
+          icono: "🚚",
+          titulo: "Entregas sin trazabilidad",
+          dato: `ETA media ${this.etaPromedio}`,
+          texto: "Si el proveedor se atrasa o cambia la ventana de entrega, la operacion reacciona tarde y pierde tiempo."
+        }
       ]
     },
 
-    kpisOperativos(){
+    heroKpis() {
+      return [
+        { value: this.totalProductos, label: "insumos activos" },
+        { value: this.categoriasCatalogo.length, label: "familias" },
+        { value: this.recetasBase.length, label: "recetas base" },
+        { value: this.proveedoresActivos, label: "proveedores" }
+      ]
+    },
+
+    proveedoresActivos() {
+      return this.proveedoresData.length
+    },
+
+    proveedoresVisibles() {
+      return this.proveedoresData.slice(0, 4)
+    },
+
+    etaPromedioHoras() {
+      if (!this.proveedoresData.length) return 0
+
+      const horas = this.proveedoresData.reduce((acum, proveedor) => {
+        if (proveedor.unidad === "dias") return acum + (proveedor.tiempo * 24)
+        return acum + proveedor.tiempo
+      }, 0)
+
+      return Math.round(horas / this.proveedoresData.length)
+    },
+
+    etaPromedio() {
+      if (!this.proveedoresData.length) return "N/D"
+      return `${this.etaPromedioHoras}h`
+    },
+
+    kpisOperativos() {
       return [
         {
           label: "Cumplimiento de abastecimiento",
           value: `${this.cumplimientoAbastecimiento}%`,
-          delta: `${this.totalProductos - this.productosSinStock}/${this.totalProductos || 0} productos disponibles`,
+          delta: `${this.totalProductos - this.productosSinStock}/${this.totalProductos || 0} insumos disponibles`,
           avance: this.cumplimientoAbastecimiento
         },
         {
-          label: "Productos con imagen",
+          label: "Cobertura visual",
           value: `${this.coberturaVisual}%`,
-          delta: `${this.productosConImagen}/${this.totalProductos || 0} con soporte visual`,
+          delta: `${this.productosConImagen}/${this.totalProductos || 0} con imagen en sistema`,
           avance: this.coberturaVisual
         },
         {
-          label: "Quiebres de stock critico",
-          value: String(this.productosSinStock),
-          delta: this.productosSinStock === 0 ? "Sin quiebres registrados" : "Requiere reposicion operativa",
-          avance: Math.max(100 - (this.productosSinStock * 25), 0)
+          label: "Catalogo filtrado",
+          value: String(this.productosFiltrados.length),
+          delta: "resultado actual de la busqueda",
+          avance: this.totalProductos ? Math.round((this.productosFiltrados.length / this.totalProductos) * 100) : 0
         },
         {
           label: "Tiempo medio de respuesta",
@@ -533,38 +891,32 @@ emits: ["entrar"],
           avance: Math.max(100 - Math.min(this.etaPromedioHoras * 4, 100), 12)
         }
       ]
-    },
+    }
+  },
 
-    proveedoresActivos(){
-      return this.proveedoresData.length
-    },
+  watch: {
+    productosFiltrados: {
+      immediate: true,
+      handler(lista) {
+        if (!lista.length) {
+          this.productoActivoNombre = ""
+          return
+        }
 
-    proveedoresVisibles(){
-      return this.proveedoresData.slice(0, 4)
-    },
-
-    etaPromedioHoras(){
-      if(!this.proveedoresData.length) return 0
-      const horas = this.proveedoresData.reduce((acum, proveedor) => {
-        if(proveedor.unidad === "dias") return acum + (proveedor.tiempo * 24)
-        return acum + proveedor.tiempo
-      }, 0)
-      return Math.round(horas / this.proveedoresData.length)
-    },
-
-    etaPromedio(){
-      if(!this.proveedoresData.length) return "N/D"
-      return `${this.etaPromedioHoras}h`
+        if (!lista.some((producto) => producto.nombre === this.productoActivoNombre)) {
+          this.productoActivoNombre = lista[0].nombre
+        }
+      }
     }
   },
 
   methods: {
-    enviarMensaje(){
-      if(
-        this.form.empresa.trim() === "" ||
-        this.form.email.trim() === "" ||
-        this.form.mensaje.trim() === ""
-      ){
+    enviarMensaje() {
+      if (
+        this.form.empresa === "" ||
+        this.form.email === "" ||
+        this.form.mensaje === ""
+      ) {
         this.estadoMensaje = "Completa empresa, email y objetivo para activar la solicitud."
         return
       }
@@ -573,44 +925,96 @@ emits: ["entrar"],
       this.form = { empresa: "", email: "", mensaje: "" }
     },
 
-    abrirSolucion(solucion){
+    abrirSolucion(solucion) {
       this.solucionActiva = solucion
     },
 
-    cerrarSolucion(){
+    cerrarSolucion() {
       this.solucionActiva = null
     },
 
-    toggleFaq(index){
+    toggleFaq(index) {
       this.faqAbierta = this.faqAbierta === index ? -1 : index
     },
 
-    manejarScroll(){
+    seleccionarCategoria(categoria) {
+      this.categoriaActiva = categoria
+    },
+
+    seleccionarReceta(receta) {
+      this.recetaActiva = receta
+    },
+
+    seleccionarProducto(nombre) {
+      this.productoActivoNombre = nombre
+    },
+
+    limpiarCatalogo() {
+      this.catalogoBusqueda = ""
+      this.categoriaActiva = "todos"
+      this.recetaActiva = "todas"
+    },
+
+    estadoStockTexto(producto) {
+      return Number(producto.stock) > 0 ? "Disponible" : "Critico"
+    },
+
+    estadoStockClase(producto) {
+      return Number(producto.stock) > 0 ? "isOk" : "isAlert"
+    },
+
+    siguienteSlide() {
+      this.slideActiva = (this.slideActiva + 1) % this.galeriaSlides.length
+    },
+
+    anteriorSlide() {
+      this.slideActiva = (this.slideActiva - 1 + this.galeriaSlides.length) % this.galeriaSlides.length
+    },
+
+    irASlide(index) {
+      this.slideActiva = index
+    },
+
+    iniciarCarrusel() {
+      this.detenerCarrusel()
+      this.carouselTimer = window.setInterval(() => {
+        this.siguienteSlide()
+      }, 5200)
+    },
+
+    detenerCarrusel() {
+      if (this.carouselTimer) {
+        window.clearInterval(this.carouselTimer)
+        this.carouselTimer = null
+      }
+    },
+
+    manejarScroll() {
       this.mostrarSubir = window.scrollY > 280
     },
 
-    irAlInicio(){
+    irAlInicio() {
       window.scrollTo({ top: 0, behavior: "smooth" })
     },
 
-    manejarTeclaGlobal(event){
-      if(event.key === "Escape" && this.solucionActiva){
+    manejarTeclaGlobal(event) {
+      if (event.key === "Escape" && this.solucionActiva) {
         this.cerrarSolucion()
       }
     },
 
-    activarReveals(){
+    activarReveals() {
       const targets = this.$el.querySelectorAll(".reveal-on-scroll")
-      if(!targets.length) return
+      if (!targets.length) return
 
-      if(!("IntersectionObserver" in window)){
-        targets.forEach(target => target.classList.add("is-visible"))
+      if (!("IntersectionObserver" in window)) {
+        targets.forEach((target) => target.classList.add("is-visible"))
         return
       }
 
       this.revealObserver = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
-          if(entry.isIntersecting){
+          if (entry.isIntersecting) {
             entry.target.classList.add("is-visible")
             this.revealObserver?.unobserve(entry.target)
           }
@@ -624,19 +1028,22 @@ emits: ["entrar"],
     }
   },
 
-  mounted(){
+  mounted() {
+    document.title = "Bosque Helado | Insumos B2B"
     window.addEventListener("scroll", this.manejarScroll, { passive: true })
     window.addEventListener("keydown", this.manejarTeclaGlobal)
     this.manejarScroll()
+    this.iniciarCarrusel()
     this.$nextTick(() => {
       this.activarReveals()
     })
   },
 
-  beforeUnmount(){
+  beforeUnmount() {
     window.removeEventListener("scroll", this.manejarScroll)
     window.removeEventListener("keydown", this.manejarTeclaGlobal)
     this.revealObserver?.disconnect()
+    this.detenerCarrusel()
   }
 
 }
@@ -648,19 +1055,26 @@ emits: ["entrar"],
 @import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Manrope:wght@400;500;700;800&display=swap");
 
 .landingB2B{
-  --bg: #f7f9fc;
-  --bg-alt: #eef2f8;
-  --ink: #11243a;
-  --muted: #5f6f86;
-  --primary: #0f8b8d;
-  --primary-dark: #0a6163;
-  --accent: #ffb703;
-  --line: #d8e0eb;
-  background: var(--bg);
+  --bg: #f5eee3;
+  --bg-soft: #fcf7ef;
+  --ink: #17362f;
+  --muted: #5f7067;
+  --primary: #1b5e4f;
+  --primary-dark: #10392f;
+  --accent: #c58d3f;
+  --line: rgba(23, 54, 47, 0.12);
+  --panel: rgba(255, 252, 247, 0.86);
+  --shadow-soft: 0 20px 40px rgba(19, 28, 23, 0.08);
+  --shadow-strong: 0 34px 80px rgba(12, 23, 19, 0.16);
+  background:
+    radial-gradient(circle at 10% 10%, rgba(197,141,63,0.18), transparent 20%),
+    radial-gradient(circle at 90% 10%, rgba(27,94,79,0.18), transparent 20%),
+    linear-gradient(180deg, #f8f4ec 0%, #f4eee4 46%, #f7f2ea 100%);
   color: var(--ink);
+  font-size: 20px;
   font-family: "Manrope", "Segoe UI", sans-serif;
-  position: relative;
   overflow-x: clip;
+  position: relative;
 }
 
 .landingB2B::before,
@@ -672,19 +1086,21 @@ emits: ["entrar"],
 }
 
 .landingB2B::before{
-  width: 420px;
-  height: 420px;
-  top: -120px;
-  right: -160px;
-  background: radial-gradient(circle, rgba(15,139,141,0.2), transparent 70%);
+  inset: -160px auto auto -120px;
+  width: 380px;
+  height: 380px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(197,141,63,0.26), transparent 72%);
+  filter: blur(18px);
 }
 
 .landingB2B::after{
-  width: 300px;
-  height: 300px;
-  left: -120px;
-  top: 880px;
-  background: radial-gradient(circle, rgba(255,183,3,0.22), transparent 70%);
+  inset: 640px -120px auto auto;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(27,94,79,0.16), transparent 72%);
+  filter: blur(22px);
 }
 
 .topNav,
@@ -699,67 +1115,104 @@ emits: ["entrar"],
 .topNav{
   position: sticky;
   top: 0;
-  z-index: 50;
-  backdrop-filter: blur(12px);
-  background: rgba(247,249,252,0.88);
-  border-bottom: 1px solid var(--line);
+  z-index: 40;
+  backdrop-filter: blur(18px);
+  background: rgba(248, 244, 236, 0.82);
+  border-bottom: 1px solid rgba(23, 54, 47, 0.08);
+}
+
+.navWrap,
+.landingMain,
+.footerWrap{
+  width: min(var(--site-max-width, 1640px), calc(100% - var(--site-gutter-desktop, 36px)));
+  margin: 0 auto;
 }
 
 .navWrap{
-  max-width: 1240px;
-  margin: 0 auto;
-  padding: 12px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
+  gap: 18px;
+  padding: 14px 0;
 }
 
 .brand{
   display: inline-flex;
   align-items: center;
-  gap: 9px;
+  gap: 14px;
   text-decoration: none;
-}
-
-.brandMark{
-  font-size: 22px;
-}
-
-.brandText{
-  font-size: 16px;
-  font-weight: 800;
-  letter-spacing: 0.3px;
   color: var(--ink);
+}
+
+.brandLogo{
+  width: 56px;
+  height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(255,255,255,0.96), rgba(244,230,205,0.92));
+  border: 1px solid rgba(197,141,63,0.18);
+  box-shadow: 0 14px 24px rgba(19, 28, 23, 0.08);
+}
+
+.brandCopy{
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.brandCopy strong{
+  font-size: 28px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.brandCopy small{
+  font-size: 18px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
 }
 
 .menuBtn{
   display: none;
-  border: none;
-  background: transparent;
-  font-size: 24px;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,0.8);
   cursor: pointer;
-  color: var(--primary-dark);
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.menuBtn span{
+  width: 18px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--primary-dark);
 }
 
 .navLinks{
+  list-style: none;
   display: flex;
   align-items: center;
-  gap: 16px;
-  list-style: none;
+  gap: 18px;
   margin: 0;
   padding: 0;
 }
 
 .navLinks a{
   text-decoration: none;
-  color: #2a3f5e;
-  font-size: 13px;
+  color: #27473f;
+  font-size: 18px;
   font-weight: 700;
-}
-
-.navLinks a:hover{
-  color: var(--primary);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 .btnNavCta,
@@ -767,11 +1220,13 @@ emits: ["entrar"],
 .btnGhost,
 .btnSoft,
 .btnFooter,
-.solutionBtn{
+.solutionBtn,
+.filterChip,
+.galleryArrow{
   border: none;
-  border-radius: 12px;
-  font-weight: 800;
+  border-radius: 999px;
   cursor: pointer;
+  font-weight: 800;
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
@@ -779,90 +1234,158 @@ emits: ["entrar"],
 .btnPrimary{
   background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   color: white;
-  padding: 11px 16px;
-}
-
-.btnNavCta:hover,
-.btnPrimary:hover{
-  transform: translateY(-1px);
-  box-shadow: 0 10px 20px rgba(8,83,84,0.24);
+  padding: 12px 18px;
+  font-size: 19px;
+  text-decoration: none;
+  box-shadow: 0 14px 28px rgba(16, 57, 47, 0.16);
 }
 
 .btnGhost{
-  background: #ffffff;
-  border: 1px solid #bfd6da;
+  background: rgba(255,255,255,0.82);
   color: var(--primary-dark);
-  padding: 11px 16px;
-}
-
-.btnGhost:hover{
-  background: #eef8f8;
+  padding: 12px 18px;
+  font-size: 19px;
+  border: 1px solid rgba(27,94,79,0.14);
 }
 
 .btnSoft{
-  background: #fff7e2;
-  border: 1px solid #f3d17b;
-  color: #8a6400;
-  padding: 11px 16px;
+  background: rgba(197,141,63,0.14);
+  color: #8b5b1f;
+  padding: 12px 18px;
+  font-size: 19px;
+  border: 1px solid rgba(197,141,63,0.22);
 }
 
-.btnSoft:hover{
-  background: #ffeec2;
+.btnFooter{
+  padding: 12px 18px;
+  font-size: 19px;
+  background: rgba(255,255,255,0.92);
+  color: var(--primary-dark);
+}
+
+.btnNavCta:hover,
+.btnPrimary:hover,
+.btnGhost:hover,
+.btnSoft:hover,
+.btnFooter:hover,
+.solutionBtn:hover,
+.filterChip:hover,
+.galleryArrow:hover{
+  transform: translateY(-2px);
 }
 
 .landingMain{
-  max-width: 1240px;
-  margin: 0 auto;
-  padding: 12px 24px 40px;
+  padding: 32px 0 84px;
 }
 
-.heroSection{
-  min-height: 86vh;
+.heroSection,
+.contentSection{
+  padding: 28px 0 38px;
+}
+
+.painGrid{
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
-  align-items: center;
-  padding: 30px 0 42px;
-}
-
-.heroInfo{
-  display: flex;
-  flex-direction: column;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
 }
 
-.eyebrow,
-.sectionEyebrow{
-  margin: 0;
-  font-size: 12px;
+.painCard{
+  padding: 24px;
+  border-radius: 28px;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-soft);
+  background: linear-gradient(180deg, rgba(255,255,255,0.88), rgba(255,247,238,0.76));
+}
+
+.painIcon{
+  margin: 0 0 14px;
+  font-size: 30px;
+}
+
+.painValue{
+  margin: 0 0 10px;
+  font-size: 18px;
   font-weight: 800;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  letter-spacing: 1.2px;
-  color: var(--primary);
+  color: #8c6327;
+}
+
+.painCard h3{
+  margin: 0 0 10px;
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 42px;
+  line-height: 1;
+}
+
+.painCard p:last-child{
+  margin: 0;
+  font-size: 24px;
+  color: #50625a;
+  line-height: 1.72;
+}
+
+.heroSection{
+  display: grid;
+  grid-template-columns: minmax(440px, 0.84fr) minmax(520px, 1.16fr);
+  gap: 40px;
+  align-items: center;
+  min-height: calc(100vh - 110px);
+}
+
+.heroCopy{
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.eyebrow,
+.sectionEyebrow,
+.miniEyebrow{
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: #8c6327;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
 }
 
 .heroTitle,
-.sectionTitle{
+.sectionTitle,
+.catalogCard h3,
+.solutionCard h3,
+.onboardingCard h3,
+.spotlightHeader h3{
   margin: 0;
   font-family: "Fraunces", Georgia, serif;
   color: var(--ink);
+  letter-spacing: -0.04em;
 }
 
 .heroTitle{
-  font-size: 56px;
-  line-height: 0.97;
-  max-width: 11ch;
+  font-size: clamp(78px, 7.6vw, 118px);
+  line-height: 0.94;
+  max-width: 10.8ch;
 }
 
-.heroText{
+.heroText,
+.sectionLead,
+.catalogRecipe,
+.caseTexto,
+.faqAnswer,
+.contactVisualCopy p{
   margin: 0;
-  color: #35506e;
-  font-size: 18px;
-  line-height: 1.55;
-  max-width: 54ch;
+  font-size: 26px;
+  color: #50625a;
+  line-height: 1.72;
 }
 
-.heroActions{
+.heroActions,
+.heroRibbon,
+.galleryTags,
+.catalogTags,
+.metaBlock,
+.providerPills{
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
@@ -870,788 +1393,904 @@ emits: ["entrar"],
 
 .heroMetrics{
   display: grid;
-  grid-template-columns: repeat(3, minmax(120px, 1fr));
-  gap: 10px;
-  max-width: 560px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.metricCard,
+.catalogToolbar,
+.catalogSpotlight,
+.catalogCard,
+.solutionCard,
+.onboardingCard,
+.kpiCard,
+.caseCard,
+.faqItem,
+.contactForm,
+.contactVisual{
+  background: linear-gradient(180deg, rgba(255,255,255,0.86), rgba(255,249,241,0.74));
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  box-shadow: var(--shadow-soft);
 }
 
 .metricCard{
-  background: #ffffff;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 14px;
-  box-shadow: 0 10px 22px rgba(17,36,58,0.07);
+  padding: 18px 16px;
 }
 
 .metricValue{
   margin: 0;
-  font-size: 24px;
+  font-size: 52px;
   font-weight: 800;
   color: var(--primary-dark);
 }
 
 .metricLabel{
-  margin: 2px 0 0;
-  font-size: 12px;
+  margin: 6px 0 0;
+  font-size: 18px;
+  font-weight: 700;
   color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
 }
 
-.statusBoard{
-  background: linear-gradient(170deg, #ffffff, #f4f8ff);
-  border-radius: 24px;
-  border: 1px solid var(--line);
-  box-shadow: 0 20px 44px rgba(17,36,58,0.16);
-  padding: 18px;
-}
-
-.boardHead{
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.boardHead p{
-  margin: 0;
-  font-size: 14px;
-  font-weight: 800;
-  color: #2a3f5e;
-}
-
-.boardHead span{
-  padding: 6px 10px;
+.heroRibbon span,
+.galleryTags span,
+.catalogTags span,
+.metaBlock span,
+.providerPill{
+  padding: 9px 13px;
   border-radius: 999px;
-  background: #e8fbf7;
-  border: 1px solid #a5ddd4;
-  color: #0e6768;
-  font-size: 11px;
-  font-weight: 800;
+  background: rgba(255,255,255,0.7);
+  border: 1px solid rgba(23,54,47,0.1);
+  color: var(--primary-dark);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
-.boardGrid{
+.heroGallery{
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  width: 100%;
+  max-width: 1320px;
+  justify-self: end;
+}
+
+.galleryStage{
+  min-height: 0;
+  aspect-ratio: 16 / 10;
+  max-height: 640px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 36px;
+  box-shadow: var(--shadow-strong);
+}
+
+.galleryStage img,
+.galleryThumb img,
+.contactVisual img{
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.galleryOverlay{
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: 24px;
+  padding: 24px;
+  border-radius: 28px;
+  background: linear-gradient(180deg, rgba(15,34,28,0.2), rgba(15,34,28,0.84));
+  color: #fff6ea;
+  backdrop-filter: blur(12px);
+}
+
+.galleryOverlay h2{
+  margin: 10px 0 12px;
+  font-family: "Fraunces", Georgia, serif;
+  font-size: clamp(46px, 5vw, 72px);
+  line-height: 0.98;
+}
+
+.galleryOverlay p{
+  margin: 0;
+  font-size: 25px;
+  color: rgba(255,246,234,0.9);
+  line-height: 1.72;
+  max-width: 54ch;
+}
+
+.galleryControls{
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  display: flex;
   gap: 10px;
 }
 
-.boardCard{
-  border-radius: 14px;
-  border: 1px solid #d4deeb;
-  background: #ffffff;
-  padding: 14px;
+.galleryArrow{
+  width: 46px;
+  height: 46px;
+  background: rgba(255,255,255,0.88);
+  color: var(--primary-dark);
+  font-size: 28px;
+  line-height: 1;
 }
 
-.boardCard p,
-.boardCard small{
-  margin: 0;
+.galleryThumbs{
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
 }
 
-.boardCard p{
-  font-size: 12px;
-  color: #607086;
-}
-
-.boardCard h3{
-  margin: 5px 0 3px;
-  font-size: 30px;
-  color: #173657;
-}
-
-.boardCard small{
-  font-size: 11px;
-  color: #738399;
-}
-
-.boardCardAccent{
-  background: linear-gradient(160deg, #0f8b8d, #0b5f61);
-  border-color: transparent;
-}
-
-.boardCardAccent p,
-.boardCardAccent h3,
-.boardCardAccent small{
-  color: white;
-}
-
-.boardBarWrap{
-  margin-top: 12px;
-}
-
-.boardBarWrap p{
-  margin: 0 0 8px;
-  font-size: 12px;
-  font-weight: 700;
-  color: #49627f;
-}
-
-.boardBar{
-  height: 10px;
-  border-radius: 999px;
-  background: #e4ebf5;
+.galleryThumb{
+  padding: 0;
   overflow: hidden;
+  border-radius: 24px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,0.8);
+  box-shadow: var(--shadow-soft);
+  display: grid;
+  grid-template-rows: 132px auto;
+  text-align: left;
 }
 
-.boardBar span{
-  display: block;
-  width: 96%;
-  height: 100%;
-  background: linear-gradient(90deg, var(--primary), #6ad5cc);
-  animation: boardLoad 2.2s ease-out;
+.galleryThumb.isActive{
+  border-color: rgba(27,94,79,0.24);
+  transform: translateY(-2px);
 }
 
-.contentSection{
-  padding: 62px 0;
+.galleryThumb span{
+  padding: 16px;
+  display: grid;
+  gap: 6px;
 }
 
-.altSection{
-  background: var(--bg-alt);
-  margin-left: -24px;
-  margin-right: -24px;
-  padding-left: 24px;
-  padding-right: 24px;
-  border-top: 1px solid #dce4ef;
-  border-bottom: 1px solid #dce4ef;
+.galleryThumb strong{
+  font-size: 22px;
+  color: var(--ink);
 }
 
-.sectionPropuesta{
-  border-left: 5px solid var(--accent);
-  padding-left: 20px;
+.galleryThumb small{
+  font-size: 18px;
+  color: var(--muted);
 }
 
 .sectionTop{
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   margin-bottom: 20px;
 }
 
 .sectionTitle{
-  font-size: 39px;
-  line-height: 1.05;
+  font-size: clamp(56px, 5.6vw, 84px);
+  line-height: 0.98;
+  max-width: 16ch;
+}
+
+.catalogToolbar{
+  padding: 22px;
+  display: grid;
+  gap: 18px;
+}
+
+.catalogSearch{
+  display: grid;
+  gap: 10px;
+}
+
+.catalogSearch span,
+.filterGroup p,
+.metaBlock p,
+.catalogCategory,
+.kpiLabel{
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.catalogSearch input,
+.contactForm input,
+.contactForm textarea{
+  width: 100%;
+  border-radius: 18px;
+  border: 1px solid rgba(23,54,47,0.12);
+  background: rgba(255,255,255,0.88);
+  padding: 16px 18px;
+  font-size: 24px;
+  color: var(--ink);
+  font-family: inherit;
+}
+
+.filterGroup{
+  display: grid;
+  gap: 10px;
+}
+
+.filterRow{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filterChip{
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.7);
+  color: var(--primary-dark);
+  border: 1px solid rgba(23,54,47,0.1);
+  font-size: 18px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.filterChip.isActive{
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+}
+
+.catalogSpotlight{
+  margin-top: 18px;
+  padding: 24px;
+}
+
+.spotlightHeader{
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.spotlightHeader h3{
+  margin-top: 10px;
+  font-size: clamp(48px, 4.8vw, 68px);
+  line-height: 0.98;
+}
+
+.spotlightHeader p:last-child{
+  margin-top: 10px;
+}
+
+.spotlightSummary{
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.spotlightSummary article{
+  padding: 16px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.74);
+  border: 1px solid rgba(23,54,47,0.08);
+}
+
+.spotlightSummary small{
+  display: block;
+  margin-bottom: 8px;
+  font-size: 17px;
+  color: #8c6327;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.spotlightSummary strong{
+  font-size: 30px;
+  color: var(--primary-dark);
+}
+
+.spotlightMeta{
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: start;
+}
+
+.metaActions{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.catalogGrid{
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.catalogCard{
+  padding: 22px;
+  cursor: pointer;
+  min-height: 220px;
+}
+
+.catalogCard.isSelected{
+  border-color: rgba(27,94,79,0.26);
+  box-shadow: 0 26px 50px rgba(16, 37, 31, 0.14);
+  transform: translateY(-2px);
+}
+
+.catalogCardHead{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.stockBadge{
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.stockBadge.isOk{
+  background: rgba(27,94,79,0.12);
+  color: var(--primary-dark);
+}
+
+.stockBadge.isAlert{
+  background: rgba(197,141,63,0.18);
+  color: #8b5b1f;
+}
+
+.catalogCard h3{
+  margin-top: 18px;
+  font-size: 46px;
+  line-height: 0.98;
+}
+
+.catalogStock{
+  margin: 10px 0 0;
+  font-size: 24px;
+  color: #4f6259;
+}
+
+.catalogTags{
+  margin: 16px 0;
+}
+
+.catalogEmpty{
+  grid-column: 1 / -1;
+  padding: 28px;
+  border-radius: 28px;
+  border: 1px dashed rgba(23,54,47,0.18);
+  background: rgba(255,255,255,0.64);
+}
+
+.catalogEmpty h3,
+.providerIntro h3,
+.contactVisualCopy h3{
+  margin: 0 0 10px;
+}
+
+.providerRail{
+  margin-top: 20px;
+  padding: 22px 24px;
+  border-radius: 30px;
+  background: linear-gradient(135deg, rgba(18,56,47,0.98), rgba(10,28,24,0.98));
+  color: #fff6ea;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.providerIntro h3{
+  font-size: 44px;
+  line-height: 1.2;
+  max-width: 18ch;
+}
+
+.providerPill{
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.1);
+  color: #fff6ea;
+}
+
+.splitBoard{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
 }
 
 .solutionGrid,
 .onboardingGrid,
-.moduleGrid,
 .kpiGrid,
 .caseGrid{
   display: grid;
-  gap: 12px;
+  gap: 16px;
 }
 
 .solutionGrid{
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.onboardingGrid,
+.kpiGrid{
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.caseGrid{
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .solutionCard,
 .onboardingCard,
-.moduleCard,
 .kpiCard,
 .caseCard,
+.faqItem,
 .contactForm,
-.contactMapCard,
-.faqItem{
-  background: #ffffff;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  box-shadow: 0 10px 24px rgba(17,36,58,0.07);
+.contactVisual{
+  padding: 24px;
 }
 
 .solutionCard{
-  padding: 18px;
   cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.23s ease, box-shadow 0.23s ease, border-color 0.23s ease;
 }
 
-.solutionCard::before{
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 92% 6%, rgba(255,183,3,0.3), transparent 42%);
-  opacity: 0;
-  transition: opacity 0.25s ease;
-}
-
-.solutionCard:hover{
-  transform: translateY(-4px);
-  border-color: #a8bfdd;
-  box-shadow: 0 16px 28px rgba(17,36,58,0.14);
-}
-
-.solutionCard:hover::before{
-  opacity: 1;
+.solutionIcon,
+.stepBadge,
+.caseAvatar{
+  display: inline-grid;
+  place-items: center;
 }
 
 .solutionIcon{
-  margin: 0 0 8px;
-  font-size: 24px;
-}
-
-.solutionCard h3,
-.onboardingCard h3,
-.moduleCard h3,
-.contactMapCard h3{
-  margin: 0;
-  color: #163656;
-}
-
-.solutionCard h3{
-  font-size: 19px;
-}
-
-.solutionCard p{
-  margin: 8px 0 0;
-  color: #48627f;
-  line-height: 1.45;
-}
-
-.solutionImpacto{
-  font-size: 13px;
-  font-weight: 700;
-  color: #0a6d6f;
-}
-
-.solutionBtn{
-  margin-top: 12px;
-  background: #edf5ff;
-  color: #1b4268;
-  padding: 9px 12px;
-  font-size: 12px;
-}
-
-.solutionModalOverlay{
-  position: fixed;
-  inset: 0;
-  background: rgba(9,18,32,0.62);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  z-index: 120;
-}
-
-.solutionModalCard{
-  width: 100%;
-  max-width: 640px;
-  border-radius: 18px;
-  background: linear-gradient(180deg, #ffffff, #f4f8ff);
-  border: 1px solid #cdd9ea;
-  box-shadow: 0 26px 48px rgba(0,0,0,0.3);
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.solutionModalIcon{
-  margin: 0;
+  margin: 0 0 14px;
   font-size: 30px;
 }
 
-.solutionModalCard h3{
+.solutionCard h3,
+.onboardingCard h3{
+  font-size: 46px;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+
+.solutionCard p,
+.onboardingCard p,
+.kpiDelta{
   margin: 0;
-  font-size: 31px;
-  font-family: "Fraunces", Georgia, serif;
-  color: #14304f;
+  font-size: 24px;
+  color: #50625a;
+  line-height: 1.7;
 }
 
-.solutionModalText,
-.solutionModalImpact{
-  margin: 0;
-  color: #44627f;
+.solutionImpact{
+  margin-top: 14px !important;
+  color: var(--primary-dark) !important;
+  font-weight: 700;
 }
 
-.solutionModalList{
-  margin: 0;
-  padding-left: 18px;
-  color: #2c4f71;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.solutionModalActions{
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 8px;
-}
-
-.onboardingGrid{
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-}
-
-.onboardingCard{
-  padding: 18px;
-  position: relative;
+.solutionBtn{
+  margin-top: 18px;
+  padding: 10px 14px;
+  background: rgba(27,94,79,0.1);
+  color: var(--primary-dark);
+  border: 1px solid rgba(27,94,79,0.12);
 }
 
 .stepBadge{
-  width: 32px;
-  height: 32px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  background: #173a5e;
-  color: white;
-  font-size: 13px;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: rgba(197,141,63,0.16);
+  color: #8c6327;
   font-weight: 800;
-}
-
-.onboardingCard h3{
-  margin-top: 10px;
-  font-size: 18px;
-}
-
-.onboardingCard p{
-  margin: 8px 0 0;
-  color: #496482;
-  line-height: 1.45;
+  margin-bottom: 14px;
 }
 
 .onboardingCard small{
   display: inline-block;
-  margin-top: 10px;
-  color: #0b7072;
-  font-weight: 700;
-}
-
-.moduleGrid{
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-}
-
-.moduleCard{
-  padding: 18px;
-}
-
-.moduleCard p{
-  margin: 8px 0 10px;
-  color: #496482;
-}
-
-.moduleCard ul{
-  margin: 0;
-  padding-left: 18px;
-  color: #2b4c6d;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.providerStrip{
-  margin-top: 14px;
-  border-radius: 16px;
-  border: 1px dashed #9cb5d4;
-  background: #f5f9ff;
-  padding: 16px;
-}
-
-.providerStrip h3{
-  margin: 0 0 10px;
+  margin-top: 16px;
   font-size: 18px;
-  color: #163656;
-}
-
-.providerPills{
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.providerPill{
-  background: #ffffff;
-  border: 1px solid #c8d6ea;
-  color: #294d72;
-  padding: 7px 11px;
-  border-radius: 999px;
-  font-size: 12px;
+  color: var(--primary-dark);
   font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
-.sectionKpi{
-  background: linear-gradient(130deg, #f2f8ff, #f8fffb);
-  border: 1px solid #d5e2f2;
-  border-radius: 18px;
-  padding: 32px 18px;
-}
-
-.kpiGrid{
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-}
-
-.kpiCard{
-  padding: 16px;
-}
-
-.kpiLabel,
-.kpiDelta{
-  margin: 0;
-  color: #5d6f87;
-  font-size: 12px;
+.kpiLabel{
+  margin-bottom: 10px;
 }
 
 .kpiValue{
-  margin: 6px 0;
-  font-size: 32px;
-  color: #17395f;
-  font-weight: 800;
-}
-
-.kpiDelta{
-  font-weight: 700;
-  color: #0d6c6e;
+  margin: 0;
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 70px;
+  line-height: 0.98;
 }
 
 .kpiBar{
-  margin-top: 10px;
-  height: 8px;
+  margin-top: 18px;
+  height: 12px;
   border-radius: 999px;
-  background: #e5edf7;
+  background: rgba(27,94,79,0.08);
   overflow: hidden;
 }
 
 .kpiBar span{
   display: block;
   height: 100%;
-  background: linear-gradient(90deg, var(--primary), #79dfd6);
-}
-
-.caseGrid{
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-}
-
-.caseCard{
-  padding: 18px;
-  transition: transform 0.24s ease, box-shadow 0.24s ease;
-}
-
-.caseCard:hover{
-  transform: translateY(-4px);
-  box-shadow: 0 16px 28px rgba(17,36,58,0.14);
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ffd27a, #f0b04c);
 }
 
 .caseHead{
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
+  margin-bottom: 16px;
 }
 
 .caseAvatar{
-  width: 38px;
-  height: 38px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #fff0cf, #ecf9f7);
-  border: 1px solid #c6d8e8;
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  background: rgba(197,141,63,0.16);
+  font-size: 22px;
 }
 
 .caseAutor{
   margin: 0;
-  font-size: 14px;
+  font-size: 24px;
   font-weight: 800;
-  color: #163656;
 }
 
 .caseRol{
-  margin: 0;
-  font-size: 12px;
-  color: #5f7188;
-}
-
-.caseTexto{
-  margin: 10px 0 0;
-  color: #3f5b79;
-  line-height: 1.46;
+  margin: 4px 0 0;
+  font-size: 20px;
+  color: var(--muted);
 }
 
 .faqList{
   display: grid;
-  gap: 10px;
-}
-
-.faqItem{
-  overflow: hidden;
+  gap: 14px;
 }
 
 .faqQuestion{
   width: 100%;
-  border: none;
-  background: #ffffff;
-  padding: 14px 16px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  font-size: 14px;
-  font-weight: 800;
-  color: #1d3d61;
+  justify-content: space-between;
+  gap: 14px;
+  border: none;
+  background: none;
+  padding: 0;
   cursor: pointer;
+  text-align: left;
+  color: var(--ink);
+  font-size: 30px;
+  font-weight: 800;
 }
 
 .faqAnswer{
-  margin: 0;
-  padding: 0 16px 14px;
-  color: #48627f;
-  line-height: 1.45;
+  margin-top: 14px;
 }
 
 .contactGrid{
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: 18px;
+}
+
+.contactForm{
+  display: grid;
   gap: 12px;
 }
 
-.contactForm,
-.contactMapCard{
-  padding: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
 .contactForm label{
-  font-size: 13px;
+  font-size: 18px;
   font-weight: 800;
-  color: #25496d;
+  color: var(--muted);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
-.contactForm input,
 .contactForm textarea{
-  width: 100%;
-  border: 1px solid #c4d4e8;
-  border-radius: 10px;
-  padding: 10px 12px;
-  font-size: 14px;
-  font-family: "Manrope", "Segoe UI", sans-serif;
-  background: #fcfdff;
-  outline: none;
-}
-
-.contactForm input:focus,
-.contactForm textarea:focus{
-  border-color: #5db9be;
+  resize: vertical;
 }
 
 .estadoMensaje{
-  margin: 4px 0 0;
-  color: #0a6668;
-  font-size: 13px;
+  margin: 0;
+  font-size: 20px;
+  color: var(--primary-dark);
   font-weight: 700;
 }
 
-.contactMapCard p{
-  margin: 0;
-  color: #4b6583;
-  line-height: 1.42;
+.contactVisual{
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.1fr);
+  gap: 0;
+  padding: 0;
+  max-width: 1180px;
+  justify-self: end;
 }
 
-.contactMapCard iframe{
-  width: 100%;
-  height: 284px;
-  border: 0;
-  border-radius: 12px;
+.contactVisualCopy{
+  padding: 28px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(255,249,241,0.82));
+}
+
+.contactVisualCopy h3{
+  font-size: 66px;
+  font-family: "Fraunces", Georgia, serif;
+  line-height: 0.98;
+}
+
+.contactVisual img{
+  min-height: 100%;
+  aspect-ratio: 3 / 2;
+}
+
+.solutionModalOverlay{
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(8, 18, 15, 0.56);
+  backdrop-filter: blur(10px);
+}
+
+.solutionModalCard{
+  width: min(640px, 100%);
+  padding: 30px;
+  border-radius: 30px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(251,245,237,0.92));
+  box-shadow: var(--shadow-strong);
+}
+
+.solutionModalIcon{
+  margin: 0 0 12px;
+  font-size: 36px;
+}
+
+.solutionModalCard h3{
+  margin: 0 0 12px;
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 42px;
+  line-height: 0.98;
+}
+
+.solutionModalText,
+.solutionModalImpact{
+  margin: 0;
+  color: #50625a;
+  line-height: 1.7;
+}
+
+.solutionModalList{
+  margin: 18px 0;
+  padding-left: 18px;
+}
+
+.solutionModalActions{
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .siteFooter{
-  max-width: 1240px;
-  margin: 0 auto;
-  padding: 24px;
+  padding: 0 0 30px;
+}
+
+.footerWrap{
+  padding: 22px 24px;
+  border-radius: 28px;
+  background: linear-gradient(135deg, rgba(18,56,47,0.98), rgba(10,28,24,0.98));
+  color: #fff6ea;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 10px;
-  border-top: 1px solid var(--line);
+  justify-content: space-between;
+  gap: 16px;
 }
 
-.siteFooter p{
+.footerCopy{
+  display: grid;
+  gap: 8px;
+}
+
+.footerWrap p{
   margin: 0;
-  color: #6b7c92;
-  font-size: 13px;
+  font-size: 22px;
 }
 
-.btnFooter{
-  background: #fff2cb;
-  border: 1px solid #f1d48d;
-  color: #815b00;
-  padding: 10px 14px;
+.footerCopy small{
+  display: block;
+  max-width: 72ch;
+  color: rgba(255,246,234,0.82);
+  font-size: 19px;
+  line-height: 1.6;
 }
 
 .floatingWhatsApp,
 .floatingTop{
   position: fixed;
-  width: 58px;
-  height: 58px;
-  border-radius: 999px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 12px 28px rgba(7,26,41,0.28);
-  z-index: 60;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  right: 16px;
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  box-shadow: 0 18px 36px rgba(14, 25, 21, 0.2);
 }
 
 .floatingWhatsApp{
-  left: 18px;
-  bottom: 18px;
-  background: #25d366;
+  bottom: 16px;
+  background: #1fc66a;
   color: white;
 }
 
 .floatingTop{
-  right: 18px;
-  bottom: 18px;
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  bottom: 82px;
   border: none;
+  background: rgba(18,56,47,0.96);
   color: white;
-  cursor: pointer;
-}
-
-.floatingWhatsApp:hover,
-.floatingTop:hover{
-  transform: translateY(-2px);
-  box-shadow: 0 14px 30px rgba(7,26,41,0.34);
 }
 
 .floatingWhatsApp svg,
 .floatingTop svg{
-  width: 28px;
-  height: 28px;
+  width: 22px;
   fill: currentColor;
 }
 
 .reveal-on-scroll{
   opacity: 0;
-  transform: translateY(22px) scale(0.985);
+  transform: translateY(24px);
   transition: opacity 0.55s ease, transform 0.55s ease;
-  transition-delay: calc(var(--reveal-order, 0) * 80ms);
+  transition-delay: calc(var(--reveal-order, 0) * 0.06s);
 }
 
 .reveal-on-scroll.is-visible{
   opacity: 1;
-  transform: translateY(0) scale(1);
+  transform: translateY(0);
 }
 
 .modalFade-enter-active,
 .modalFade-leave-active{
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  transition: opacity 0.22s ease;
 }
 
 .modalFade-enter-from,
 .modalFade-leave-to{
   opacity: 0;
-  transform: scale(0.96);
 }
 
-@keyframes boardLoad{
-  from{ width: 0; }
-  to{ width: 96%; }
-}
-
-@media (max-width: 1040px){
-  .heroSection{
-    grid-template-columns: 1fr;
-    min-height: auto;
-    padding-top: 20px;
-  }
-
-  .heroTitle{
-    max-width: 100%;
-    font-size: 48px;
-  }
-
-  .heroMetrics{
-    grid-template-columns: repeat(3, minmax(100px, 1fr));
-  }
-
-  .contactGrid{
+@media (max-width: 1380px){
+  .heroSection,
+  .contactGrid,
+  .contactVisual,
+  .spotlightHeader,
+  .spotlightMeta,
+  .splitBoard{
     grid-template-columns: 1fr;
   }
+
+  .painGrid,
+  .catalogGrid,
+  .solutionGrid{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
-@media (max-width: 780px){
+@media (max-width: 1080px){
   .menuBtn{
-    display: block;
+    display: inline-flex;
   }
 
   .navLinks{
     position: absolute;
-    top: 64px;
-    left: 0;
-    right: 0;
-    display: none;
+    top: calc(100% + 10px);
+    left: 18px;
+    right: 18px;
     flex-direction: column;
     align-items: flex-start;
-    background: #f8fbff;
-    border-bottom: 1px solid var(--line);
-    padding: 14px 24px;
+    gap: 12px;
+    padding: 18px;
+    border-radius: 24px;
+    background: rgba(255,250,242,0.98);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-soft);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-10px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
   }
 
   .navLinks.navOpen{
-    display: flex;
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
   }
 
-  .navCtaItem,
-  .btnNavCta{
-    width: 100%;
-  }
-
-  .sectionTitle{
-    font-size: 32px;
-  }
-
-  .heroTitle{
-    font-size: 40px;
-  }
-
-  .heroMetrics{
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .boardGrid{
+  .heroSection,
+  .galleryThumbs,
+  .heroMetrics,
+  .painGrid,
+  .catalogGrid,
+  .onboardingGrid,
+  .kpiGrid,
+  .caseGrid{
     grid-template-columns: 1fr;
   }
 
-  .altSection{
-    margin-left: -12px;
-    margin-right: -12px;
-    padding-left: 12px;
-    padding-right: 12px;
-  }
-
-  .siteFooter{
+  .providerRail,
+  .footerWrap{
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+@media (max-width: 720px){
+  .navWrap,
+  .landingMain,
+  .footerWrap{
+    width: min(100%, calc(100% - var(--site-gutter-mobile, 20px)));
+  }
+
+  .heroSection,
+  .contentSection{
+    padding: 20px 0 28px;
+  }
+
+  .heroTitle{
+    font-size: 48px;
+  }
+
+  .sectionTitle{
+    font-size: 34px;
+  }
+
+  .galleryStage{
+    min-height: 0;
+  }
+
+  .galleryOverlay,
+  .catalogToolbar,
+  .catalogSpotlight,
+  .catalogCard,
+  .solutionCard,
+  .onboardingCard,
+  .kpiCard,
+  .caseCard,
+  .faqItem,
+  .contactForm,
+  .contactVisualCopy{
+    padding: 20px;
+  }
+
+  .galleryControls{
+    top: 16px;
+    right: 16px;
+  }
+
+  .galleryArrow{
+    width: 42px;
+    height: 42px;
   }
 
   .floatingWhatsApp,
   .floatingTop{
-    width: 52px;
-    height: 52px;
-    bottom: 14px;
-  }
-
-  .floatingWhatsApp{
-    left: 14px;
-  }
-
-  .floatingTop{
-    right: 14px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce){
-  .reveal-on-scroll{
-    opacity: 1;
-    transform: none;
-    transition: none;
-  }
-
-  .boardBar span{
-    animation: none;
+    width: 48px;
+    height: 48px;
+    right: 12px;
+    border-radius: 16px;
   }
 }
 

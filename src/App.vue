@@ -96,6 +96,12 @@ background:#f4fdf8;
 color:#1a3d2e;
 }
 
+:root{
+--site-max-width: calc(1640px + 40rem);
+--site-gutter-desktop: 36px;
+--site-gutter-mobile: 20px;
+}
+
 .appRoot{
 min-height:100vh;
 }
