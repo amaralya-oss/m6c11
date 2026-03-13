@@ -25,7 +25,14 @@
 
   </div>
 
-  <Resumen v-if="mostrarResumen" :totalTareas="tareas.length" :diaActivo="diaActivo" />
+  <Resumen
+    v-if="mostrarResumen"
+    :totalTareas="tareas.length"
+    :diaActivo="diaActivo"
+    :totalRecetas="totalRecetas"
+    :totalProveedores="totalProveedores"
+    :productosSinStock="productosSinStock"
+  />
 
   <div v-if="mostrarAgenda" class="seccion">
     <AgendaDia :tareas="tareas" />
@@ -38,7 +45,15 @@
   </div>
 
   <div v-if="mostrarKpi" class="seccion">
-    <KpiPanel :tareas="tareas" :diaActivo="diaActivo" />
+    <KpiPanel
+      :tareas="tareas"
+      :diaActivo="diaActivo"
+      :totalProductos="totalProductos"
+      :productosSinStock="productosSinStock"
+      :productosConImagen="productosConImagen"
+      :totalProveedores="totalProveedores"
+      :totalImagenes="totalImagenes"
+    />
   </div>
 
   <!-- AE1 REQ 5 + 6: ListaTareas usa v-for y v-show -->
@@ -70,6 +85,10 @@ import KpiPanel    from "../components/dashboard/KpiPanel.vue"
 import FormTarea   from "../components/tareas/FormTarea.vue"
 import ListaTareas from "../components/tareas/ListaTareas.vue"
 import ModalTarea  from "../components/tareas/ModalTarea.vue"
+import { listarImagenes } from "../services/falsoBackImagenes.js"
+import { listarEstadoTareas, guardarEstadoTareas } from "../services/falsoBackTareas.js"
+import { listarStock, listarProveedores } from "@/modules/inventario/services/falsoBackInventario.js"
+import { recetas } from "@/modules/inventario/data/recetas.js"
 
 export default{
 
@@ -93,7 +112,13 @@ diaActivo: true,
 tareas: [],
 mostrarModal: false,
 tareaSeleccionada: null,
-nextId: 1
+nextId: 1,
+totalRecetas: 0,
+totalProductos: 0,
+productosSinStock: 0,
+productosConImagen: 0,
+totalProveedores: 0,
+totalImagenes: 0
 }
 },
 
@@ -115,10 +140,16 @@ return this.vista === "panel" || this.vista === "kpi"
 }
 },
 
+mounted(){
+this.cargarEstado()
+this.cargarResumenOperacion()
+},
+
 methods:{
 
 cambiarEstado(){
 this.diaActivo = !this.diaActivo
+this.persistirEstado()
 },
 
 agregarTarea({ nombre, prioridad }){
@@ -128,14 +159,17 @@ this.tareas.push({
   prioridad,
   completada: false
 })
+this.persistirEstado()
 },
 
 toggleCompletar(tarea){
 tarea.completada = !tarea.completada
+this.persistirEstado()
 },
 
 eliminarTarea(tarea){
 this.tareas = this.tareas.filter(t => t !== tarea)
+this.persistirEstado()
 },
 
 abrirTarea(tarea){
@@ -151,7 +185,39 @@ this.mostrarModal = false
 guardarEdicion(tareaEditada){
 const idx = this.tareas.findIndex(t => t.id === tareaEditada.id)
 if(idx !== -1) this.tareas[idx] = { ...tareaEditada }
+this.persistirEstado()
 this.cerrarModal()
+},
+
+cargarEstado(){
+const estado = listarEstadoTareas()
+this.diaActivo = estado.diaActivo
+this.tareas = estado.tareas
+this.nextId = estado.nextId
+},
+
+persistirEstado(){
+const estado = guardarEstadoTareas({
+  diaActivo: this.diaActivo,
+  tareas: this.tareas,
+  nextId: this.nextId
+})
+this.diaActivo = estado.diaActivo
+this.tareas = estado.tareas
+this.nextId = estado.nextId
+},
+
+cargarResumenOperacion(){
+const stock = listarStock()
+const proveedores = listarProveedores()
+const imagenes = listarImagenes()
+
+this.totalRecetas = recetas.length
+this.totalProductos = stock.length
+this.productosSinStock = stock.filter(producto => Number(producto.stock) === 0).length
+this.productosConImagen = stock.filter(producto => producto.thumbnail_url || producto.cloudinary_url).length
+this.totalProveedores = proveedores.length
+this.totalImagenes = imagenes.length
 }
 
 }

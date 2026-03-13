@@ -102,7 +102,7 @@
 import FilaProveedores from "../components/proveedores/filaProveedores.vue"
 import BotonesProveedores from "../components/proveedores/botonesProveedores.vue"
 import DragDropImagenes from "@/modules/panelTareas/components/imagenes/DragDropImagenes.vue"
-import { proveedores } from "@/modules/inventario/data/proveedores.js"
+import { guardarProveedores, listarProveedores } from "../services/falsoBackInventario.js"
 
 export default{
 
@@ -115,7 +115,7 @@ DragDropImagenes
 // ── DATOS ────────────────────────────────────────────
 data(){
 return{
-listaProveedores: [...proveedores],
+listaProveedores: listarProveedores(),
 mostrarModal: false,
 proveedorAEditar: null,
 errorModal: "",
@@ -175,6 +175,7 @@ if(this.proveedorAEditar){
   })
 }
 
+this.listaProveedores = guardarProveedores(this.listaProveedores)
 this.cerrarModal()
 },
 
@@ -192,6 +193,7 @@ this.mostrarModal = true
 
 eliminarProveedor(prov){
 this.listaProveedores = this.listaProveedores.filter(p => p !== prov)
+this.listaProveedores = guardarProveedores(this.listaProveedores)
 },
 
 cerrarModal(){

@@ -1,4 +1,4 @@
-const recetas = [
+export const recetas = [
   {
     nombre: "Helado Frambuesa",
 

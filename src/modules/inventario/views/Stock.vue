@@ -1,14 +1,14 @@
 <script setup>
 import { ref } from "vue"
 import TablaStock from "../components/stock/tablaStock.vue"
-import { productos } from "@/modules/inventario/data/productos.js"
 import { alergenos } from "@/modules/inventario/data/alergenos.js"
 import { categoria } from "@/modules/inventario/data/categoria.js"
 import DragDropImagenes from "@/modules/panelTareas/components/imagenes/DragDropImagenes.vue"
+import { guardarStock, listarStock } from "../services/falsoBackInventario.js"
 
 const nombreEncargado = ref("Valentina Torres")
 const tiendaAbierta = ref(true)
-const stock = ref([...productos])
+const stock = ref(listarStock())
 
 const mostrarModal = ref(false)
 const nombreProducto = ref("")
@@ -57,6 +57,10 @@ function asignarImagenProducto(cargadas) {
   thumbnail_url.value = cargadas[0].thumbnail_url || cargadas[0].cloudinary_url || ""
 }
 
+function persistirStock() {
+  stock.value = guardarStock(stock.value)
+}
+
 function agregarProducto() {
   if (!tiendaAbierta.value) {
     errorFormulario.value = "La tienda esta cerrada: inventario bloqueado"
@@ -94,6 +98,7 @@ function agregarProducto() {
     })
   }
 
+  persistirStock()
   cerrarModal()
 }
 
@@ -128,6 +133,7 @@ function eliminarProducto(producto) {
     return
   }
   stock.value = stock.value.filter((p) => p !== producto)
+  persistirStock()
 }
 </script>
 

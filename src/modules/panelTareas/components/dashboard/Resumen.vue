@@ -37,6 +37,18 @@ totalTareas:{
 diaActivo:{
   type: Boolean,
   default: true
+},
+totalRecetas:{
+  type: Number,
+  default: 0
+},
+totalProveedores:{
+  type: Number,
+  default: 0
+},
+productosSinStock:{
+  type: Number,
+  default: 0
 }
 },
 
@@ -52,15 +64,21 @@ tarjetas(){
     },
     {
       icono: "🍦",
-      valor: "4",
-      label: "Sabores del día",
+      valor: this.totalRecetas,
+      label: "Recetas base",
       color: "#9b66d0"
     },
     {
       icono: "📦",
-      valor: "3",
+      valor: this.totalProveedores,
       label: "Proveedores activos",
       color: "#f5a623"
+    },
+    {
+      icono: "🚨",
+      valor: this.productosSinStock,
+      label: "Productos sin stock",
+      color: "#e05a00"
     },
     {
       icono: this.diaActivo ? "☀️" : "🌙",

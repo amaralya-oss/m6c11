@@ -18,8 +18,16 @@
       <p class="metricaValor">{{ tareasPendientes }}</p>
     </article>
     <article class="metricaCard">
-      <p class="metricaLabel">Estado del turno</p>
-      <p class="metricaValor">{{ diaActivo ? "Activo" : "Cerrado" }}</p>
+      <p class="metricaLabel">Productos sin stock</p>
+      <p class="metricaValor">{{ productosSinStock }}</p>
+    </article>
+    <article class="metricaCard">
+      <p class="metricaLabel">Proveedores activos</p>
+      <p class="metricaValor">{{ totalProveedores }}</p>
+    </article>
+    <article class="metricaCard">
+      <p class="metricaLabel">Imagenes cargadas</p>
+      <p class="metricaValor">{{ totalImagenes }}</p>
     </article>
   </div>
 
@@ -43,7 +51,12 @@ export default{
 
 props:{
 tareas:{ type: Array, default: () => [] },
-diaActivo:{ type: Boolean, default: true }
+diaActivo:{ type: Boolean, default: true },
+totalProductos:{ type: Number, default: 0 },
+productosSinStock:{ type: Number, default: 0 },
+productosConImagen:{ type: Number, default: 0 },
+totalProveedores:{ type: Number, default: 0 },
+totalImagenes:{ type: Number, default: 0 }
 },
 
 computed:{
@@ -60,10 +73,21 @@ cumplimiento(){
   return Math.round((this.tareasCompletadas / this.tareas.length) * 100)
 },
 
+stockDisponible(){
+  return Math.max(this.totalProductos - this.productosSinStock, 0)
+},
+
+disponibilidadStock(){
+  if(this.totalProductos === 0) return 0
+  return Math.round((this.stockDisponible / this.totalProductos) * 100)
+},
+
+coberturaVisual(){
+  if(this.totalProductos === 0) return 0
+  return Math.round((this.productosConImagen / this.totalProductos) * 100)
+},
+
 barras(){
-  const total = this.tareas.length || 1
-  const completadasPorc = Math.round((this.tareasCompletadas / total) * 100)
-  const pendientesPorc = Math.round((this.tareasPendientes / total) * 100)
   return[
     {
       id: "cumplimiento",
@@ -73,17 +97,17 @@ barras(){
       color: "#2d9e74"
     },
     {
-      id: "completadas",
-      label: "Tareas completadas",
-      porcentaje: completadasPorc,
-      valor: this.tareasCompletadas,
+      id: "stock",
+      label: "Stock disponible",
+      porcentaje: this.disponibilidadStock,
+      valor: this.stockDisponible + "/" + this.totalProductos,
       color: "#1f7a5c"
     },
     {
-      id: "pendientes",
-      label: "Tareas pendientes",
-      porcentaje: pendientesPorc,
-      valor: this.tareasPendientes,
+      id: "visuales",
+      label: "Productos con imagen",
+      porcentaje: this.coberturaVisual,
+      valor: this.productosConImagen + "/" + this.totalProductos,
       color: "#f5a623"
     }
   ]
@@ -149,7 +173,7 @@ gap:10px;
 
 .filaBarra{
 display:grid;
-grid-template-columns:minmax(130px, 190px) 1fr 44px;
+grid-template-columns:minmax(130px, 190px) 1fr 72px;
 align-items:center;
 gap:10px;
 }
