@@ -1,269 +1,345 @@
 <template>
 
-<div class="layout">
+<div class="panelEmpleado">
 
-<Sidebar />
+  <h1 class="tituloPanelInterpolado">
+    Panel de Tareas de <span class="nombreDestacado">{{ usuario }}</span>
+  </h1>
 
-<!-- PANEL PRINCIPAL -->
-<main class="panel">
+  <div class="bloqueEstadoDia">
 
-<HeaderPanel
-:heladero="usuario"
-:hora="hora"
-/>
+    <div class="estadoBadge" :class="diaActivo ? 'badge--activo' : 'badge--inactivo'">
+      <span v-if="diaActivo">☀️ Día activo, ¡a trabajar!</span>
+      <span v-else>🌙 Día finalizado. Buen trabajo.</span>
+    </div>
 
-<h1>Panel de Tareas de {{ usuario }}</h1>
+    <button
+      v-if="esAdmin"
+      class="btnEstadoDia"
+      :class="diaActivo ? 'btn--cerrar' : 'btn--abrir'"
+      @click="cambiarEstado"
+    >
+      {{ diaActivo ? "Finalizar día" : "Iniciar día" }}
+    </button>
 
-<div class="estadoDia">
+  </div>
 
-<button
-class="botonEstado"
-@click="cambiarEstado"
-:class="diaActivo ? 'btnRojo' : 'btnVerde'"
->
-{{ diaActivo ? "Finalizar día" : "Iniciar día" }}
-</button>
+  <Resumen
+    v-if="mostrarResumen"
+    :totalTareas="tareasVisibles.length"
+    :diaActivo="diaActivo"
+    :totalRecetas="totalRecetas"
+    :totalProveedores="totalProveedores"
+    :productosSinStock="productosSinStock"
+  />
 
-<p v-if="diaActivo" class="mensajeActivo">
-☀️ Día activo, ¡a trabajar!
-</p>
+  <div v-if="mostrarAgenda" class="seccion">
+    <AgendaDia :tareas="tareasVisibles" />
+  </div>
 
-<p v-else class="mensajeFinalizado">
-🌙 Día finalizado. Buen trabajo.
-</p>
+  <div v-if="mostrarTareas" class="seccion">
+    <h2 class="tituloSeccion">{{ esAdmin ? "✅ Asignación de tareas" : "✅ Tareas asignadas" }}</h2>
+    <FormTarea
+      :diaActivo="diaActivo"
+      :soloLectura="!esAdmin"
+      @agregar="agregarTarea"
+      @agregarTarea="agregarTarea"
+    />
+  </div>
+
+  <div v-if="mostrarKpi && esAdmin" class="seccion">
+    <KpiPanel
+      :tareas="tareas"
+      :diaActivo="diaActivo"
+      :totalProductos="totalProductos"
+      :totalRecetas="totalRecetas"
+      :productosSinStock="productosSinStock"
+      :productosConImagen="productosConImagen"
+      :totalProveedores="totalProveedores"
+      :totalImagenes="totalImagenes"
+      :imagenes="imagenes"
+    />
+  </div>
+
+  <ListaTareas
+    v-if="mostrarTareas"
+    :tareas="tareasVisibles"
+    :soloLectura="!esAdmin"
+    @toggleCompletar="toggleCompletar"
+    @editar="abrirTarea"
+    @eliminar="eliminarTarea"
+  />
+
+  <ModalTarea
+    v-if="esAdmin"
+    :visible="mostrarModal"
+    :tarea="tareaSeleccionada"
+    @cerrar="cerrarModal"
+    @guardar="guardarEdicion"
+  />
 
 </div>
-
-<Resumen
-:total="tareas.length"
-:completadas="tareasCompletadas"
-:pendientes="tareasPendientes"
-:porcentaje="porcentajeProgreso"
-/>
-
-
-<FormTarea @agregar="agregarTarea"/>
-<h2 class="tituloTareas">Tareas asignadas</h2>
-
-<ListaTareas
-:tareas="tareas"
-@eliminar="eliminarTarea"
-@abrir="abrirTarea"
-/>
-
-</main>
-
-<AgendaDia
-:hora="hora"
-:tareas="tareas"
-/>
-
-</div>
-
-<ModalTarea
-:visible="mostrarModal"
-:tarea="tareaSeleccionada"
-:instrucciones="instrucciones"
-@cerrar="mostrarModal=false"
-/>
 
 </template>
 
 <script>
 
-import HeaderPanel from "../layout/HeaderPanel.vue"
-import Sidebar from "../layout/Sidebar.vue"
-
-import AgendaDia from "../components/dashboard/AgendaDia.vue"
-import Resumen from "../components/dashboard/Resumen.vue"
-
-import FormTarea from "../components/tareas/FormTarea.vue"
+import Resumen     from "../components/dashboard/Resumen.vue"
+import AgendaDia   from "../components/dashboard/AgendaDia.vue"
+import KpiPanel    from "../components/dashboard/KpiPanel.vue"
+import FormTarea   from "../components/tareas/FormTarea.vue"
 import ListaTareas from "../components/tareas/ListaTareas.vue"
-import ModalTarea from "../components/tareas/ModalTarea.vue"
+import ModalTarea  from "../components/tareas/ModalTarea.vue"
+import { listarImagenes } from "../services/falsoBackImagenes.js"
+import { listarEstadoTareas, guardarEstadoTareas } from "../services/falsoBackTareas.js"
+import { listarStock, listarProveedores } from "@/modules/inventario/services/falsoBackInventario.js"
+import { recetas } from "@/modules/inventario/data/recetas.js"
 
 export default{
 
+props:{
+usuario:{ type: String, default: "" },
+rol:{ type: String, default: "empleado" },
+vista:{ type: String, default: "panel" }
+},
+
 components:{
-HeaderPanel,
-LogoBosque,
+Resumen,
+AgendaDia,
+KpiPanel,
 FormTarea,
 ListaTareas,
-Resumen,
-ModalTarea,
-AgendaDia,
-Sidebar
+ModalTarea
 },
 
 data(){
 return{
+diaActivo: true,
+tareas: [],
+mostrarModal: false,
+tareaSeleccionada: null,
+nextId: 1,
+totalRecetas: 0,
+totalProductos: 0,
+productosSinStock: 0,
+productosConImagen: 0,
+totalProveedores: 0,
+totalImagenes: 0,
+imagenes: []
+}
+},
 
-usuario:"Camila",
+computed:{
+mostrarResumen(){
+return this.vista === "panel" || this.vista === "kpi"
+},
 
-hora:new Date().toLocaleTimeString(),
+mostrarAgenda(){
+return this.vista === "panel"
+},
 
-diaActivo:true,
+mostrarTareas(){
+return this.vista === "panel" || this.vista === "tareas"
+},
 
-tareas:[],
+mostrarKpi(){
+return this.vista === "panel" || this.vista === "kpi"
+},
 
-tareaSeleccionada:null,
-instrucciones:[],
-mostrarModal:false
+esAdmin(){
+return this.rol === "admin"
+},
 
+tareasVisibles(){
+if(this.esAdmin){
+  return this.tareas
+}
+
+return this.tareas.filter((tarea) => {
+  return String(tarea.asignado || "").trim().toLowerCase() === String(this.usuario || "").trim().toLowerCase()
+})
 }
 },
 
 mounted(){
-
-setInterval(()=>{
-this.hora = new Date().toLocaleTimeString()
-},1000)
-
-},
-
-computed:{
-
-tareasCompletadas(){
-return this.tareas.filter(t => t.completada).length
-},
-
-tareasPendientes(){
-return this.tareas.length - this.tareasCompletadas
-},
-
-porcentajeProgreso(){
-
-if(this.tareas.length === 0){
-return 0
-}
-
-return Math.round((this.tareasCompletadas / this.tareas.length) * 100)
-
-}
-
+this.cargarEstado()
+this.cargarResumenOperacion()
 },
 
 methods:{
 
 cambiarEstado(){
+if(!this.esAdmin) return
 this.diaActivo = !this.diaActivo
+this.persistirEstado()
 },
 
-agregarTarea(tarea){
-
-const colores = ["verde","naranja","morado"]
-
-const colorRandom = colores[Math.floor(Math.random()*colores.length)]
-
+agregarTarea(tareaNueva){
+if(!this.esAdmin) return
 this.tareas.push({
-nombre:tarea.nombre,
-inicio:tarea.inicio,
-fin:tarea.fin,
-completada:false,
-color:colorRandom
+  id: this.nextId++,
+  ...tareaNueva,
+  completada: tareaNueva.estado === "completada"
 })
-
+this.persistirEstado()
 },
 
-eliminarTarea(index){
-this.tareas.splice(index,1)
+toggleCompletar(tarea){
+if(!this.esAdmin) return
+tarea.completada = !tarea.completada
+tarea.estado = tarea.completada ? "completada" : "pendiente"
+this.persistirEstado()
 },
 
-async abrirTarea(tarea){
+eliminarTarea(tarea){
+if(!this.esAdmin) return
+this.tareas = this.tareas.filter(t => t !== tarea)
+this.persistirEstado()
+},
 
+abrirTarea(tarea){
+if(!this.esAdmin) return
 this.tareaSeleccionada = tarea
 this.mostrarModal = true
+},
 
-try{
+cerrarModal(){
+this.tareaSeleccionada = null
+this.mostrarModal = false
+},
 
-const res = await fetch("http://localhost:3000/instrucciones/" + tarea.nombre)
+guardarEdicion(tareaEditada){
+if(!this.esAdmin) return
+const tareaNormalizada = {
+  ...tareaEditada,
+  completada: tareaEditada.estado === "completada"
+}
+const idx = this.tareas.findIndex(t => t.id === tareaEditada.id)
+if(idx !== -1) this.tareas[idx] = tareaNormalizada
+this.persistirEstado()
+this.cerrarModal()
+},
 
-const data = await res.json()
+cargarEstado(){
+const estado = listarEstadoTareas()
+this.diaActivo = estado.diaActivo
+this.tareas = estado.tareas
+this.nextId = estado.nextId
+},
 
-this.instrucciones = data
+persistirEstado(){
+const estado = guardarEstadoTareas({
+  diaActivo: this.diaActivo,
+  tareas: this.tareas,
+  nextId: this.nextId
+})
+this.diaActivo = estado.diaActivo
+this.tareas = estado.tareas
+this.nextId = estado.nextId
+},
 
-}catch(error){
+cargarResumenOperacion(){
+const stock = listarStock()
+const proveedores = listarProveedores()
+const imagenes = listarImagenes()
 
-console.error("Error cargando instrucciones", error)
-
+this.totalRecetas = recetas.length
+this.totalProductos = stock.length
+this.productosSinStock = stock.filter(producto => Number(producto.stock) === 0).length
+this.productosConImagen = stock.filter(producto => producto.thumbnail_url || producto.cloudinary_url).length
+this.totalProveedores = proveedores.length
+this.totalImagenes = imagenes.length
+this.imagenes = imagenes
 }
 
 }
-
-}
-
 
 }
 
 </script>
 
-
 <style scoped>
 
-
-.layout{
-display:grid;
-grid-template-columns:250px 1fr 280px;
-height:100vh;
-font-family:Arial;
+.panelEmpleado{
+padding:24px 20px 28px;
+display:flex;
+flex-direction:column;
+gap:20px;
+width:100%;
 }
 
-
-/* PANEL */
-
-.panel{
-padding:30px;
-background:#f5f5f5;
+.tituloPanelInterpolado{
+font-size:22px;
+font-weight:700;
+color:#1a3d2e;
+margin:0;
 }
 
-/* AGENDA */
-
-.agenda{
-background:#e6f2f2;
-padding:20px;
+.nombreDestacado{
+color:#e05a00;
 }
 
-/* BOTONES */
+.bloqueEstadoDia{
+display:flex;
+align-items:center;
+gap:16px;
+flex-wrap:wrap;
+}
 
-.botonEstado{
-border:none;
+.estadoBadge{
 padding:10px 20px;
-border-radius:25px;
-color:white;
-cursor:pointer;
-}
-
-.btnRojo{
-background:#f05252;
-}
-
-.btnVerde{
-background:#1f8a70;
-}
-
-/* MENSAJES */
-
-.mensajeActivo{
-background:#e6f6ec;
-color:#1b7f4f;
-padding:10px 18px;
-border-radius:30px;
-}
-
-.mensajeFinalizado{
-background:#f0e6ff;
-color:#6a3dc9;
-padding:10px 18px;
-border-radius:30px;
-}
-
-
-.tituloTareas{
-margin-top:25px;
-margin-bottom:10px;
-font-size:20px;
+border-radius:50px;
 font-weight:600;
-color:#333;
+font-size:14px;
 }
 
+.badge--activo{
+background:#d4f5e5;
+color:#1a6b52;
+border:2px solid #2d9e74;
+}
+
+.badge--inactivo{
+background:#f0e8ff;
+color:#6b3fa0;
+border:2px solid #9b66d0;
+}
+
+.btnEstadoDia{
+padding:10px 22px;
+border:none;
+border-radius:50px;
+font-weight:700;
+font-size:14px;
+cursor:pointer;
+transition:0.2s;
+}
+
+.btn--cerrar{
+background:#ff6b6b;
+color:white;
+}
+
+.btn--cerrar:hover{ background:#e85555; }
+
+.btn--abrir{
+background:#2d9e74;
+color:white;
+}
+
+.btn--abrir:hover{ background:#1a6b52; }
+
+.seccion{
+display:flex;
+flex-direction:column;
+gap:12px;
+}
+
+.tituloSeccion{
+font-size:16px;
+font-weight:700;
+color:#1a3d2e;
+margin:0;
+}
 
 </style>

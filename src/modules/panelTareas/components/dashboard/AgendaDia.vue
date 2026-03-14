@@ -1,59 +1,25 @@
 <template>
 
-<aside class="agenda">
+<div class="agendaDia">
 
-<h3 class="titulo">Agenda del día</h3>
+  <h3 class="tituloAgenda">📅 Agenda del día — <span class="fechaHoy">{{ fechaFormateada }}</span></h3>
 
-<!-- Hora actual -->
+  <p v-show="bloques.length === 0" class="sinBloques">No hay bloques agendados para hoy.</p>
 
-<div class="bloque">
-
-<p class="subtitulo">🕒 Hora actual</p>
-<p class="hora">{{ hora }}</p>
-
-</div>
-
-<!-- Tareas del día -->
-
-<div class="bloque">
-
-<p class="subtitulo">📋 Tareas del día</p>
-
-<p v-if="tareasOrdenadas.length === 0" class="sinTareas">
-No tienes tareas agregadas hoy
-</p>
-
-<ul v-else class="lista">
-
-<li
-v-for="(tarea,index) in tareasOrdenadas"
-:key="index"
-:class="estadoTarea(tarea)"
->
-<span class="horario">
-{{ tarea.inicio }} - {{ tarea.fin }}
-</span>
-
-<span class="nombre">
-{{ tarea.nombre }}
-</span>
-
-<div v-if="estadoTarea(tarea) === 'activa'" class="timeline">
-
-<div
-class="progreso"
-:style="{ width: progresoTarea(tarea) + '%' }"
-></div>
+  <ul class="listaBloques" v-show="bloques.length > 0">
+    <li
+      v-for="(bloque, i) in bloques"
+      :key="i"
+      class="bloqueHora"
+      :class="{ 'bloque--pasado': bloque.pasado }"
+    >
+      <span class="hora">{{ bloque.hora }}</span>
+      <span class="descripcion">{{ bloque.descripcion }}</span>
+      <span v-if="bloque.pasado" class="badgePasado">✓</span>
+    </li>
+  </ul>
 
 </div>
-
-</li>
-
-</ul>
-
-</div>
-
-</aside>
 
 </template>
 
@@ -61,61 +27,34 @@ class="progreso"
 
 export default{
 
-props:[
-"hora",
-"tareas"
-],
-
-methods:{
-
-estadoTarea(tarea){
-
-const ahora = this.hora.substring(0,5)
-
-if(ahora >= tarea.inicio && ahora <= tarea.fin){
-return "activa"
+props:{
+tareas:{
+  type: Array,
+  default: () => []
 }
-
-if(ahora > tarea.fin){
-return "finalizada"
-}
-
-return "pendiente"
-
 },
 
-progresoTarea(tarea){
-
-const ahora = this.hora.substring(0,5)
-
-const inicio = tarea.inicio.split(":")
-const fin = tarea.fin.split(":")
-const actual = ahora.split(":")
-
-const inicioMin = parseInt(inicio[0])*60 + parseInt(inicio[1])
-const finMin = parseInt(fin[0])*60 + parseInt(fin[1])
-const actualMin = parseInt(actual[0])*60 + parseInt(actual[1])
-
-const duracion = finMin - inicioMin
-const progreso = actualMin - inicioMin
-
-return Math.min(100, Math.max(0, (progreso / duracion) * 100))
-
+// ── DATOS ──────────────────────────────────────────
+data(){
+return{
+bloques:[
+  { hora:"08:00", descripcion:"Apertura y limpieza de equipos", pasado: true },
+  { hora:"09:00", descripcion:"Preparación de bases veganas", pasado: true },
+  { hora:"11:00", descripcion:"Control de stock en cámara fría", pasado: false },
+  { hora:"13:00", descripcion:"Atención al público — turno medio día", pasado: false },
+  { hora:"16:00", descripcion:"Recepción de insumos proveedor", pasado: false },
+  { hora:"18:00", descripcion:"Cierre y limpieza final", pasado: false }
+]
 }
-
 },
+
+// ── COMPUTED ───────────────────────────────────────
 computed:{
-
-tareasOrdenadas(){
-
-if(!this.tareas) return []
-
-return [...this.tareas].sort((a,b)=>{
-return a.inicio.localeCompare(b.inicio)
-})
-
+fechaFormateada(){
+  return new Date().toLocaleDateString("es-CL",{
+    weekday:"long", year:"numeric", month:"long", day:"numeric"
+  })
 }
-
 }
 
 }
@@ -124,104 +63,84 @@ return a.inicio.localeCompare(b.inicio)
 
 <style scoped>
 
-.agenda{
-background:#e6f2f2;
-padding:20px;
+/* ── CONTENEDOR ── */
+.agendaDia{
+background:white;
+border-radius:14px;
+padding:20px 22px;
+box-shadow:0 2px 12px rgba(29,107,82,0.08);
+border:1px solid #b6e8d3;
+}
+
+/* ── TÍTULO ── */
+.tituloAgenda{
+font-size:15px;
+font-weight:700;
+color:#1a3d2e;
+margin-bottom:16px;
+}
+
+.fechaHoy{
+color:#2d9e74;
+font-weight:600;
+text-transform:capitalize;
+}
+
+/* ── LISTA ── */
+.listaBloques{
+list-style:none;
+padding:0;
 display:flex;
 flex-direction:column;
-gap:15px;
+gap:8px;
 }
 
-.titulo{
-font-size:18px;
-font-weight:600;
-}
-
-.bloque{
-background:white;
-padding:15px;
+.bloqueHora{
+display:flex;
+align-items:center;
+gap:12px;
+padding:10px 14px;
 border-radius:10px;
-box-shadow:0 2px 6px rgba(0,0,0,0.05);
+background:#f4fdf8;
+border-left:4px solid #2d9e74;
+transition:0.2s;
 }
 
-.subtitulo{
-font-weight:600;
-margin-bottom:10px;
+.bloqueHora:hover{
+background:#e0f8ed;
+}
+
+.bloque--pasado{
+opacity:0.55;
+border-left-color:#b6e8d3;
 }
 
 .hora{
-font-size:18px;
-font-weight:600;
-color:#1f8a70;
+font-weight:700;
+font-size:13px;
+color:#2d9e74;
+min-width:48px;
 }
 
-.lista{
-padding-left:0;
-list-style:none;
-}
-
-.lista li{
-display:flex;
-flex-direction:column;
-margin-bottom:8px;
-}
-
-.horario{
-font-size:12px;
-opacity:0.8;
-}
-
-.nombre{
-font-weight:500;
-}
-
-.sinTareas{
+.descripcion{
+flex:1;
 font-size:14px;
-opacity:0.7;
+color:#2a3d2e;
 }
 
-.lista li{
-display:flex;
-flex-direction:column;
-margin-bottom:8px;
-padding:8px;
-border-radius:8px;
+.badgePasado{
+font-size:12px;
+color:#2d9e74;
+font-weight:700;
+background:#d4f5e5;
+padding:2px 8px;
+border-radius:50px;
 }
 
-/* tarea actual */
-
-.activa{
-background:#dff7ea;
-border-left:4px solid #1f8a70;
-font-weight:600;
-}
-
-/* tarea futura */
-
-.pendiente{
-opacity:0.8;
-}
-
-/* tarea pasada */
-
-.finalizada{
-opacity:0.5;
-text-decoration:line-through;
-}
-
-.timeline{
-width:100%;
-height:6px;
-background:#e0e0e0;
-border-radius:4px;
-margin-top:6px;
-overflow:hidden;
-}
-
-.progreso{
-height:100%;
-background:#1f8a70;
-transition:width 0.5s;
+.sinBloques{
+color:#999;
+font-style:italic;
+font-size:14px;
 }
 
 </style>

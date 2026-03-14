@@ -2,40 +2,24 @@
 
 <div class="resumen">
 
-<h2>Resumen</h2>
+  <h3 class="tituloResumen">📊 Resumen del turno</h3>
 
-<div class="cards-resumen">
+  <div class="tarjetasGrid">
 
-<div class="card total">
-    <p>Total</p>
-    <h3>{{ total }}</h3>
-</div>
+    <div
+      v-for="(tarjeta, i) in tarjetas"
+      :key="i"
+      class="tarjeta"
+      :style="{ borderTopColor: tarjeta.color }"
+    >
+      <span class="tarjetaIcono">{{ tarjeta.icono }}</span>
+      <div class="tarjetaInfo">
+        <span class="tarjetaValor" :style="{ color: tarjeta.color }">{{ tarjeta.valor }}</span>
+        <span class="tarjetaLabel">{{ tarjeta.label }}</span>
+      </div>
+    </div>
 
-<div class="card completadas">
-    <p>Completadas</p>
-    <h3>{{ completadas }}</h3>
-
-</div>
-
-<div class="card pendientes">
-    <p>Pendientes</p>
-    <h3>{{ pendientes }}</h3>
-</div>
-
-</div>
-
-<p class="tituloProgreso">Progreso del día</p>
-
-<div class="barraProgreso">
-
-<div
-class="progreso"
-:style="{ width: porcentaje + '%' }"
-></div>
-
-</div>
-
-<p class="porcentaje">{{ porcentaje }}%</p>
+  </div>
 
 </div>
 
@@ -45,12 +29,66 @@ class="progreso"
 
 export default{
 
-props:[
-"total",
-"completadas",
-"pendientes",
-"porcentaje"
-]
+props:{
+totalTareas:{
+  type: Number,
+  default: 0
+},
+diaActivo:{
+  type: Boolean,
+  default: true
+},
+totalRecetas:{
+  type: Number,
+  default: 0
+},
+totalProveedores:{
+  type: Number,
+  default: 0
+},
+productosSinStock:{
+  type: Number,
+  default: 0
+}
+},
+
+// ── COMPUTED ───────────────────────────────────────
+computed:{
+tarjetas(){
+  return[
+    {
+      icono: "✅",
+      valor: this.totalTareas,
+      label: "Tareas registradas",
+      color: "#2d9e74"
+    },
+    {
+      icono: "🍦",
+      valor: this.totalRecetas,
+      label: "Recetas base",
+      color: "#9b66d0"
+    },
+    {
+      icono: "📦",
+      valor: this.totalProveedores,
+      label: "Proveedores activos",
+      color: "#f5a623"
+    },
+    {
+      icono: "🚨",
+      valor: this.productosSinStock,
+      label: "Productos sin stock",
+      color: "#e05a00"
+    },
+    {
+      icono: this.diaActivo ? "☀️" : "🌙",
+      valor: this.diaActivo ? "Activo" : "Cerrado",
+      label: "Estado del turno",
+      color: this.diaActivo ? "#2d9e74" : "#9b66d0"
+    }
+  ]
+}
+}
 
 }
 
@@ -58,74 +96,66 @@ props:[
 
 <style scoped>
 
+/* ── CONTENEDOR ── */
 .resumen{
-background:#f4f1f1;
-padding:20px;
-border-radius:15px;
-margin-top:20px;
+background:white;
+border-radius:14px;
+padding:20px 22px;
+box-shadow:0 2px 12px rgba(29,107,82,0.08);
+border:1px solid #b6e8d3;
 }
 
-.cards-resumen{
-display:flex;
-gap:20px;
-margin:15px 0;
+/* ── TÍTULO ── */
+.tituloResumen{
+font-size:15px;
+font-weight:700;
+color:#1a3d2e;
+margin-bottom:16px;
 }
 
-.card{
-flex:1;
-padding:20px;
+/* ── GRID TARJETAS ── */
+.tarjetasGrid{
+display:grid;
+grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));
+gap:12px;
+}
+
+.tarjeta{
+background:#f9fffe;
 border-radius:12px;
-color:white;
+padding:16px 14px;
+border-top:4px solid #2d9e74;
+display:flex;
+align-items:center;
+gap:12px;
+box-shadow:0 1px 6px rgba(0,0,0,0.05);
+transition:0.2s;
+}
 
+.tarjeta:hover{
+transform:translateY(-2px);
+box-shadow:0 4px 14px rgba(29,107,82,0.12);
+}
+
+.tarjetaIcono{
+font-size:22px;
+}
+
+.tarjetaInfo{
 display:flex;
 flex-direction:column;
-align-items:center;
-justify-content:center;
-
-gap:6px;
-text-align:center;
 }
 
-.card p{
-margin:0;
-font-size:14px;
-font-weight:500;
+.tarjetaValor{
+font-size:22px;
+font-weight:800;
+line-height:1;
 }
 
-.card h3{
-margin:0;
-font-size:26px;
-font-weight:700;
-}
-
-.total{
-background:#9f94c8;
-}
-
-.completadas{
-background:#7fb39a;
-}
-
-.pendientes{
-background:#bfa88c;
-}
-
-.barraProgreso{
-height:10px;
-background:#ddd;
-border-radius:10px;
-overflow:hidden;
-margin-top:10px;
-}
-
-.progreso{
-height:10px;
-background:linear-gradient(90deg,#ff5ca8,#7b5cff);
-}
-
-.porcentaje{
-text-align:right;
-color:#ff4a7d;
+.tarjetaLabel{
+font-size:11px;
+color:#888;
+margin-top:3px;
 }
 
 </style>
