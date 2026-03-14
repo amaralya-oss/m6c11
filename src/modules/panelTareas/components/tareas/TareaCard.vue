@@ -1,143 +1,262 @@
 <template>
 
-<div class="card" :class="tarea.color">
+<div class="tareaCard" :class="{ 'card--completada': tarea.completada }">
 
-<label class="contenido">
+  <div class="cardContenido">
 
-<input
-type="checkbox"
-v-model="tarea.completada"
-/>
+    <div class="cardCabecera">
+      <div class="cardIzq">
+        <span class="numTarea">#{{ numero }}</span>
+        <span class="textoTarea" :style="{ textDecoration: tarea.completada ? 'line-through' : 'none' }">
+          {{ tarea.nombre }}
+        </span>
+      </div>
 
-<div class="textoTarea">
+      <div class="cardDer">
 
-<span class="horario">
-{{ tarea.inicio }} - {{ tarea.fin }}
-</span>
+        <span class="estadoBadge" :class="'estado--' + normalizarEstadoClase">
+          {{ tarea.estado || (tarea.completada ? "completada" : "pendiente") }}
+        </span>
 
-<span :class="{ tachado: tarea.completada }">
-{{ index + 1 }}. {{ tarea.nombre }}
-</span>
+        <span class="prioridadBadge" :class="'prio--' + tarea.prioridad">
+          {{ tarea.prioridad }}
+        </span>
+
+        <template v-if="!soloLectura">
+          <button
+            class="btnCompletar"
+            :class="tarea.completada ? 'btn--deshacer' : 'btn--completar'"
+            @click="$emit('toggleCompletar', tarea)"
+            :title="tarea.completada ? 'Deshacer' : 'Completar'"
+          >
+            {{ tarea.completada ? "↩" : "✓" }}
+          </button>
+
+          <button class="btnEditar" @click="$emit('editar', tarea)" title="Editar">✏️</button>
+          <button class="btnEliminar" @click="$emit('eliminar', tarea)" title="Eliminar">✕</button>
+        </template>
+
+      </div>
+    </div>
+
+    <div class="metaFila">
+      <span class="metaDato"><strong>Asignado:</strong> {{ tarea.asignado || "Valentina Torres" }}</span>
+      <span class="metaDato"><strong>Inicio:</strong> {{ tarea.fechaInicio || "--" }}</span>
+      <span class="metaDato"><strong>Entrega:</strong> {{ tarea.fechaEntrega || "--" }}</span>
+    </div>
+
+  </div>
 
 </div>
-
-</label>
-
-
-<div class="acciones">
-
-<button
-class="btnAbrir"
-@click="$emit('abrir', tarea)"
->
-Abrir
-</button>
-
-<button
-v-if="tarea.completada"
-class="btnEliminar"
-@click="$emit('eliminar')"
->
-Eliminar
-</button>
-
-</div>
-</div>
-
 
 </template>
 
 <script>
 
 export default{
-props:["tarea","index"]
+
+props:{
+tarea:{ type: Object, required: true },
+numero:{ type: Number, required: true },
+soloLectura:{ type: Boolean, default: false }
+},
+
+emits:["toggleCompletar","editar","eliminar"],
+
+computed:{
+normalizarEstadoClase(){
+  return String(this.tarea.estado || "pendiente")
+    .trim()
+    .toLowerCase()
+    .replaceAll(" ", "-")
+}
+}
+
 }
 
 </script>
 
 <style scoped>
 
-.card{
+.tareaCard{
+background:white;
+border:1px solid #b6e8d3;
+border-radius:12px;
+padding:12px 16px;
+transition:0.2s;
+box-shadow:0 1px 6px rgba(0,0,0,0.04);
+}
+
+.tareaCard:hover{
+background:#f0fdf7;
+box-shadow:0 3px 12px rgba(29,107,82,0.09);
+}
+
+.card--completada{
+background:#f8fdf9;
+border-color:#d4f5e5;
+opacity:0.75;
+}
+
+.cardContenido{
+display:flex;
+flex-direction:column;
+gap:10px;
+width:100%;
+}
+
+.cardCabecera{
 display:flex;
 justify-content:space-between;
 align-items:center;
-padding:18px;
-border-radius:12px;
-color:white;
-margin:15px 0;
-font-weight:500;
+gap:12px;
 }
 
-/* colores de tareas */
-
-.verde{
-background:#2f6f67;
-}
-
-.naranja{
-background:#f15a2b;
-}
-
-.morado{
-background:#7b7bbd;
-}
-
-.contenido{
+.cardIzq{
 display:flex;
 align-items:center;
 gap:10px;
+flex:1;
+min-width:0;
 }
 
-.tachado{
-text-decoration:line-through;
-opacity:0.7;
-}
-
-/* botón eliminar */
-
-.btnEliminar{
-background:rgba(0,0,0,0.2);
-color:white;
-border:none;
-padding:6px 14px;
-border-radius:20px;
-font-size:13px;
-cursor:pointer;
-transition:all 0.2s ease;
-}
-
-.btnEliminar:hover{
-background:rgba(0,0,0,0.35);
-}
-
-.acciones{
-display:flex;
-gap:10px;
-}
-
-.btnAbrir{
-background:white;
-color:#1f8a70;
-border:none;
-padding:6px 12px;
-border-radius:8px;
-cursor:pointer;
-font-size:13px;
-font-weight:500;
-}
-
-.btnAbrir:hover{
-background:#f2f2f2;
+.numTarea{
+font-weight:800;
+font-size:12px;
+color:#b6e8d3;
+min-width:28px;
 }
 
 .textoTarea{
-display:flex;
-flex-direction:column;
+font-size:14px;
+color:#1a3d2e;
+word-break:break-word;
 }
 
-.horario{
-font-size:12px;
-opacity:0.85;
+.cardDer{
+display:flex;
+align-items:center;
+gap:8px;
+flex-wrap:wrap;
+flex-shrink:0;
+}
+
+.metaFila{
+display:flex;
+gap:16px;
+flex-wrap:wrap;
+}
+
+.metaDato{
+font-size:13px;
+color:#557566;
+}
+
+.estadoBadge,
+.prioridadBadge{
+padding:3px 10px;
+border-radius:50px;
+font-size:11px;
+font-weight:700;
+text-transform:capitalize;
+}
+
+.estado--pendiente{
+background:#fff3d0;
+color:#a06000;
+}
+
+.estado--en-progreso{
+background:#dff0ff;
+color:#1765a3;
+}
+
+.estado--completada{
+background:#e0f8ed;
+color:#1a6b52;
+}
+
+.prio--alta{
+background:#ffe0cc;
+color:#c04000;
+}
+
+.prio--media{
+background:#fff3d0;
+color:#a06000;
+}
+
+.prio--baja{
+background:#e0f8ed;
+color:#1a6b52;
+}
+
+.btnCompletar,
+.btnDeshacer,
+.btnEditar,
+.btnEliminar{
+border:none;
+cursor:pointer;
+border-radius:7px;
+padding:5px 9px;
+font-size:13px;
+transition:0.2s;
+}
+
+.btn--completar{
+background:#d4f5e5;
+color:#1a6b52;
+}
+
+.btn--completar:hover{
+background:#2d9e74;
+color:white;
+}
+
+.btn--deshacer{
+background:#f0e8ff;
+color:#6b3fa0;
+}
+
+.btn--deshacer:hover{
+background:#9b66d0;
+color:white;
+}
+
+.btnEditar{
+background:#fff3d0;
+color:#a06000;
+}
+
+.btnEditar:hover{
+background:#f5a623;
+color:white;
+}
+
+.btnEliminar{
+background:#fff0f0;
+color:#e05a00;
+}
+
+.btnEliminar:hover{
+background:#e05a00;
+color:white;
+}
+
+@media (max-width: 720px){
+  .cardCabecera{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .cardDer{
+    width:100%;
+  }
+
+  .metaFila{
+    gap:8px;
+    flex-direction:column;
+  }
 }
 
 </style>

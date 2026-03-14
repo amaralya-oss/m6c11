@@ -2,23 +2,25 @@
 
 <header class="header">
 
-<!-- IZQUIERDA -->
 <div class="infoHeladeria">
 
 <LogoBosque/>
 
 <div class="textoHeladeria">
-<h2>Bosque Helado</h2>
-<p>Panel de empleados</p>
+<h2>🍃 Bosque Helado</h2>
+<p>{{ rol === "admin" ? "Panel de administración" : "Panel de empleados" }}</p>
 </div>
 
 </div>
 
-<!-- DERECHA -->
 <div class="infoUsuario">
 
+<button class="btnVolver" @click="$emit('volverLanding')">↩ Volver al landing</button>
+<button class="btnSwitch" @click="$emit('switchPerfil')">⇄ SWITCH</button>
+<button class="btnSesion" @click="$emit('cerrarSesion')">Salir</button>
+
 <div class="bloque">
-<span class="label">Empleado</span>
+<span class="label">{{ rol === "admin" ? "Administrador" : "Empleado" }}</span>
 <span class="usuario">🍦 {{ heladero }}</span>
 </div>
 
@@ -34,7 +36,8 @@ import LogoBosque from "./LogoBosque.vue"
 
 export default{
 
-props:["heladero","hora"],
+props:["heladero","rol"],
+emits:["volverLanding","switchPerfil","cerrarSesion"],
 
 components:{
 LogoBosque
@@ -50,12 +53,11 @@ LogoBosque
 display:flex;
 justify-content:space-between;
 align-items:center;
-padding-bottom:20px;
-margin-bottom:25px;
-border-bottom:1px solid #e6e6e6;
+padding:18px 22px;
+background:linear-gradient(90deg,#1a6b52,#2d9e74);
+border-bottom:3px solid #FFD166;
+border-radius:0 0 18px 18px;
 }
-
-/* IZQUIERDA */
 
 .infoHeladeria{
 display:flex;
@@ -67,21 +69,62 @@ gap:12px;
 margin:0;
 font-size:20px;
 font-weight:700;
-color:#333;
+color:#fff;
 }
 
 .textoHeladeria p{
 margin:0;
 font-size:13px;
-color:#888;
+color:#b6e8d3;
 }
-
-/* DERECHA */
 
 .infoUsuario{
 display:flex;
 align-items:center;
-gap:25px;
+gap:12px;
+flex-wrap:wrap;
+justify-content:flex-end;
+}
+
+.btnVolver,
+.btnSwitch,
+.btnSesion{
+padding:8px 14px;
+border-radius:10px;
+font-size:12px;
+font-weight:700;
+cursor:pointer;
+transition:0.2s;
+}
+
+.btnVolver{
+border:1px solid rgba(255,255,255,0.45);
+background:rgba(255,255,255,0.12);
+color:white;
+}
+
+.btnVolver:hover{
+background:rgba(255,255,255,0.2);
+}
+
+.btnSwitch{
+border:1px solid rgba(255,209,102,0.55);
+background:#FFD166;
+color:#194030;
+}
+
+.btnSwitch:hover{
+background:#ffe09a;
+}
+
+.btnSesion{
+border:1px solid rgba(255,255,255,0.38);
+background:rgba(10,36,28,0.18);
+color:#f4fdf8;
+}
+
+.btnSesion:hover{
+background:rgba(10,36,28,0.32);
 }
 
 .bloque{
@@ -92,18 +135,13 @@ font-size:13px;
 
 .label{
 font-size:11px;
-color:#888;
-}
-
-.hora{
-font-weight:600;
-color:#7b5cff;
+color:#b6e8d3;
 }
 
 .usuario{
-font-weight:600;
-color:#444;
+font-weight:700;
+color:#FFD166;
+font-size:15px;
 }
-
 
 </style>
